@@ -58,6 +58,8 @@ public class ChessPiece {
         List<ChessMove> possibleMoves = new ArrayList<>();
         int startingX = myPosition.getColumn();
         int startingY = myPosition.getRow();
+
+
         if (piece.getPieceType() == PieceType.BISHOP) {
             // Check top right
             int x = startingX + 1;
@@ -144,6 +146,8 @@ public class ChessPiece {
                 }
             }
         }
+
+
         else if (piece.getPieceType() == PieceType.KING) {
             // Top left
             if ((startingY + 1) > 0 && (startingY + 1) < 9 && (startingX -1) > 0 && (startingX - 1) < 9) { // Check if new spot in bounds first
@@ -239,6 +243,84 @@ public class ChessPiece {
                     if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
                         possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 1, startingX + 1), null));
                     }
+                }
+            }
+        }
+
+
+        else if (piece.getPieceType() == PieceType.ROOK) {
+            // Check left
+            int x = startingX - 1;
+            int y = startingY;
+            while (x >= 1) {
+                ChessPiece newSpot = board.getPiece(new ChessPosition(y, x));
+                if (newSpot == null) { // Check if space is empty
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(y, x), null)); // If empty, add to list of possible moves
+                    // Decrement x
+                    x--;
+                }
+                // If not empty, check team type
+                else if (newSpot.getTeamColor() != pieceColor) { // (May have to put this.pieceColor) If they are not our team, add final spot to list before exiting
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(y, x), null));
+                    // Set x to 0 so it exits while loop
+                    x = 0;
+                } else { // Piece in the way is on our team and we exit while loop
+                    x = 0;
+                }
+            }
+            // Check right
+            x = startingX + 1;
+            while (x <= 8) {
+                ChessPiece newSpot = board.getPiece(new ChessPosition(y, x));
+                if (newSpot == null) { // Check if space is empty
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(y, x), null)); // If empty, add to list of possible moves
+                    // Increment x
+                    x++;
+                }
+                // If not empty, check team type
+                else if (newSpot.getTeamColor() != pieceColor) { // (May have to put this.pieceColor) If they are not our team, add final spot to list before exiting
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(y, x), null));
+                    // Set x to 9 so it exits while loop
+                    x = 9;
+                } else { // Piece in the way is on our team and we exit while loop
+                    x = 9;
+                }
+            }
+            // Check down
+            x = startingX;
+            y = startingY - 1;
+            while (y >= 1) {
+                ChessPiece newSpot = board.getPiece(new ChessPosition(y, x));
+                if (newSpot == null) { // Check if space is empty
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(y, x), null)); // If empty, add to list of possible moves
+                    // Increment x
+                    y--;
+                }
+                // If not empty, check team type
+                else if (newSpot.getTeamColor() != pieceColor) { // (May have to put this.pieceColor) If they are not our team, add final spot to list before exiting
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(y, x), null));
+                    // Set y to 0 so it exits while loop
+                    y = 0;
+                } else { // Piece in the way is on our team and we exit while loop
+                    y = 0;
+                }
+            }
+            // Check up
+            y = startingY + 1;
+            while (y <= 8) {
+                ChessPiece newSpot = board.getPiece(new ChessPosition(y, x));
+                if (newSpot == null) { // Check if space is empty
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(y, x), null)); // If empty, add to list of possible moves
+                    // Increment x
+                    y++;
+                }
+                // If not empty, check team type
+                else if (newSpot.getTeamColor() != pieceColor) { // (May have to put this.pieceColor) If they are not our team, add final spot to list before exiting
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(y, x), null));
+                    // Set y to 0 so it exits while loop
+                    y = 9;
+                } else { // Piece in the way is on our team and we exit while loop
+                    y = 9;
                 }
             }
         }
