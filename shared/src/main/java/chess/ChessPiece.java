@@ -324,6 +324,106 @@ public class ChessPiece {
                 }
             }
         }
+
+
+        else if (piece.getPieceType() == PieceType.KNIGHT) {
+            // Left 2 Up 1
+            if ((startingY + 1) > 0 && (startingY + 1) < 9 && (startingX - 2) > 0 && (startingX - 2) < 9) { // Check if new spot in bounds first
+                if (board.getPiece(new ChessPosition(startingY + 1, startingX - 2)) == null) { // Checking if top left empty
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 1, startingX - 2), null));
+                }
+                else {
+                    ChessPiece newSpot = board.getPiece(new ChessPosition(startingY + 1, startingX - 2));
+                    if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
+                        possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 1, startingX - 2), null));
+                    }
+                }
+            }
+            // Left 1 Up 2
+            if ((startingY + 2) > 0 && (startingY + 2) < 9 && (startingX - 1) > 0 && (startingX - 1) < 9) { // Check if new spot in bounds
+                if (board.getPiece(new ChessPosition(startingY + 2, startingX - 1)) == null) { // Checking if empty... if so, add to list
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 2, startingX - 1), null));
+                }
+                else {
+                    ChessPiece newSpot = board.getPiece(new ChessPosition(startingY + 2, startingX - 1));
+                    if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
+                        possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 2, startingX - 1), null));
+                    }
+                }
+            }
+            // Right 1 Up 2
+            if ((startingY + 2) > 0 && (startingY + 2) < 9 && (startingX + 1) > 0 && (startingX + 1) < 9) { // Check if new spot in bounds
+                if (board.getPiece(new ChessPosition(startingY + 2, startingX + 1)) == null) { // Checking if empty... if so, add to list
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 2, startingX + 1), null));
+                }
+                else {
+                    ChessPiece newSpot = board.getPiece(new ChessPosition(startingY + 2, startingX + 1));
+                    if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
+                        possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 2, startingX + 1), null));
+                    }
+                }
+            }
+            // Right 2 Up 1
+            if ((startingY + 1) > 0 && (startingY + 1) < 9 && (startingX + 2) > 0 && (startingX + 2) < 9) { // Check if new spot in bounds
+                if (board.getPiece(new ChessPosition(startingY + 1, startingX + 2)) == null) { // Checking if empty... if so, add to list
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 1, startingX + 2), null));
+                }
+                else {
+                    ChessPiece newSpot = board.getPiece(new ChessPosition(startingY + 1, startingX + 2));
+                    if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
+                        possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 1, startingX + 2), null));
+                    }
+                }
+            }
+            // Right 2 Down 1
+            if ((startingY - 1) > 0 && (startingY - 1) < 9 && (startingX + 2) > 0 && (startingX + 2) < 9) { // Check if new spot in bounds
+                if (board.getPiece(new ChessPosition(startingY - 1, startingX + 2)) == null) { // Checking if empty... if so, add to list
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 1, startingX + 2), null));
+                }
+                else {
+                    ChessPiece newSpot = board.getPiece(new ChessPosition(startingY - 1, startingX + 2));
+                    if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
+                        possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 1, startingX + 2), null));
+                    }
+                }
+            }
+            // Right 1 Down 2
+            if ((startingY - 2) > 0 && (startingY - 2) < 9 && (startingX + 1) > 0 && (startingX + 1) < 9) { // Check if new spot in bounds
+                if (board.getPiece(new ChessPosition(startingY - 2, startingX + 1)) == null) { // Checking if empty... if so, add to list
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 2, startingX + 1), null));
+                }
+                else {
+                    ChessPiece newSpot = board.getPiece(new ChessPosition(startingY - 2, startingX + 1));
+                    if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
+                        possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 2, startingX + 1), null));
+                    }
+                }
+            }
+            // Left 1 Down 2
+            if ((startingY - 2) > 0 && (startingY - 2) < 9 && (startingX - 1) > 0 && (startingX - 1) < 9) { // Check if new spot in bounds
+                if (board.getPiece(new ChessPosition(startingY - 2, startingX - 1)) == null) { // Checking if empty... if so, add to list
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 2, startingX - 1), null));
+                }
+                else {
+                    ChessPiece newSpot = board.getPiece(new ChessPosition(startingY - 2, startingX - 1));
+                    if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
+                        possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 2, startingX - 1), null));
+                    }
+                }
+            }
+            // Left 2 Down 1
+            if ((startingY - 1) > 0 && (startingY - 1) < 9 && (startingX - 2) > 0 && (startingX - 2) < 9) { // Check if new spot in bounds
+                if (board.getPiece(new ChessPosition(startingY - 1, startingX - 2)) == null) { // Checking if empty... if so, add to list
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 1, startingX - 2), null));
+                }
+                else {
+                    ChessPiece newSpot = board.getPiece(new ChessPosition(startingY - 1, startingX - 2));
+                    if (newSpot.getTeamColor() != pieceColor) { // If piece in the way is an opponent... add their spot to the list
+                        possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY - 1, startingX - 2), null));
+                    }
+                }
+            }
+        }
         return possibleMoves;
     }
 }
