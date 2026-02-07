@@ -644,11 +644,11 @@ public class ChessPiece {
                     if (attackSpot2 != null && attackSpot2.getTeamColor() != pieceColor) { // Check if in bounds
                         if ((startingY + 1) == 8) {
                             for (PieceType upgrade : upgrades) {
-                                possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 1, startingX - 1), upgrade));
+                                possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 1, startingX + 1), upgrade));
                             }
                         }
                         else {
-                            possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 1, startingX - 1), null));
+                            possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(startingY + 1, startingX + 1), null));
                         }
                     }
                 }

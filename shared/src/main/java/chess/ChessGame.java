@@ -72,26 +72,37 @@ public class ChessGame {
         }
         ChessPosition kingPosition = this.getKingPosition(piece.getTeamColor(), currentBoard); // King location
         Collection<ChessMove> pieceMoves = piece.pieceMoves(currentBoard, startPosition);
+        TeamColor oppositeTeam = null;
+        if (piece.getTeamColor() == TeamColor.BLACK) {
+            oppositeTeam = TeamColor.WHITE;
+        }
+        else {
+            oppositeTeam = TeamColor.BLACK;
+        }
 
         // Check pieceMoves to see if each attackerList generated after a move puts the king's location in there
         Iterator<ChessMove> pieceMovesIterator = pieceMoves.iterator();
         while (pieceMovesIterator.hasNext()) {
             ChessMove move = pieceMovesIterator.next();
             Collection<ChessMove> attackerMoves = new ArrayList<>();
-            ChessGame copyGame = new ChessGame(); // New game
+//            ChessGame copyGame = new ChessGame(); // New game
             ChessBoard copyBoard = this.deepCopy(currentBoard);
-            copyGame.setBoard(copyBoard); // Set board to copy of original game's board
+            if (!copyBoard.equals(currentBoard)) {
+                System.out.println("Boards not equal!");
+            }
+//            copyGame.setBoard(copyBoard); // Set board to copy of original game's board
             // Do the "move"
-            copyGame.currentBoard.addPiece(move.getEndPosition(), null);
+            copyBoard.addPiece(move.getEndPosition(), null);
             if (move.getPromotionPiece() == null) {
-                copyGame.currentBoard.addPiece(move.getEndPosition(), piece);
+                copyBoard.addPiece(move.getEndPosition(), piece);
             }
             else {
-                copyGame.currentBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+                copyBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
             }
-            copyGame.currentBoard.addPiece(move.getStartPosition(), null);
-            attackerMoves = copyGame.getAttackerMoves(piece.getTeamColor(), copyGame.currentBoard); // Generate updated attackerMove list
-            ChessPosition newKingPosition = copyGame.getKingPosition(piece.getTeamColor(), copyGame.currentBoard);
+            copyBoard.addPiece(move.getStartPosition(), null);
+            // Shouldn't attackerMoves arg 1 be the ooposite of piece??
+            attackerMoves = this.getAttackerMoves(piece.getTeamColor(), copyBoard); // Generate updated attackerMove list
+            ChessPosition newKingPosition = this.getKingPosition(piece.getTeamColor(), copyBoard);
             for (ChessMove attackerMove : attackerMoves) {
                 if (attackerMove.getEndPosition().equals(newKingPosition)) {
                     pieceMovesIterator.remove();
@@ -219,18 +230,18 @@ public class ChessGame {
         if (teamTurn != teamColor) {
             return false;
         }
-//            for (int row=1; row<=8; row++) {
-//                for (int col = 1; col <= 8; col++) {
-//                    ChessPosition position = new ChessPosition(row, col);
-//                    ChessPiece piece = currentBoard.getPiece(position);
-//
-//                    if (piece != null && piece.getTeamColor() == teamColor) {
-//                        if (!validMoves(position).isEmpty()) {
-//                            return false;
-//                        }
-//                    }
-//                }
-//            }
+            for (int row=1; row<=8; row++) {
+                for (int col = 1; col <= 8; col++) {
+                    ChessPosition position = new ChessPosition(row, col);
+                    ChessPiece piece = currentBoard.getPiece(position);
+
+                    if (piece != null && piece.getTeamColor() == teamColor) {
+                        if (!validMoves(position).isEmpty()) {
+                            return false;
+                        }
+                    }
+                }
+            }
 
 //            for (int row=1; row<=8; row++) {
 //                for (int col=1; col<=8; col++) {
