@@ -242,20 +242,6 @@ public class ChessGame {
                     }
                 }
             }
-
-//            for (int row=1; row<=8; row++) {
-//                for (int col=1; col<=8; col++) {
-//                    ChessPosition position = new ChessPosition(row, col);
-//                    ChessPiece piece = currentBoard.getPiece(position);
-//                    if (piece != null && piece.getTeamColor() == teamColor) {
-//                        // Allow for when pawns reach the end and become something else
-//                        if (!this.validMoves(position).isEmpty()) {
-//                            return false;
-//                        }
-//                    }
-//                }
-//            }
-//            return true;
         return true;
     }
 
