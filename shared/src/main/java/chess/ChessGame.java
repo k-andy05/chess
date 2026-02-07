@@ -15,7 +15,7 @@ public class ChessGame {
     ChessBoard currentBoard = new ChessBoard(); // Initialize starting chessboard
     private TeamColor teamTurn = TeamColor.WHITE; // Initialize with white going first
     public ChessGame() {
-
+//        currentBoard.resetBoard();
     }
 
     /**
@@ -353,7 +353,11 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (this.teamTurn == teamColor) {
-
+            ChessPosition kingPosition = this.getKingPosition(teamColor, currentBoard);
+            Collection<ChessMove> validMoves = this.validMoves(kingPosition);
+            if (validMoves.isEmpty()) {
+                return !this.isInCheck(teamColor);
+            }
         }
         return false;
     }
