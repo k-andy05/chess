@@ -144,31 +144,6 @@ public class ChessGame {
     }
 
 
-
-
-
-//        if (piece == null) { // If empty spot, return null
-//            return null;
-//        }
-//        TeamColor pieceColor = piece.getTeamColor(); // else, get the team color
-////        if (this.isInCheckmate(pieceColor)) { // If in stalemate, then return an empty list
-////            return new ArrayList<>();
-////        }
-//        Collection<ChessMove> filteredMoves = piece.pieceMoves(currentBoard, startPosition); // Get raw moves list
-//        Iterator<ChessMove> filteredMovesIterator= filteredMoves.iterator(); // Create iterator for filtering
-//        while (filteredMovesIterator.hasNext()) { // While loop removes moves where check is involved
-//            ChessMove currentMove = filteredMovesIterator.next();
-//            if (isIllegal(currentMove, pieceColor)) {
-//                filteredMovesIterator.remove();
-//            }
-//        }
-//        return filteredMoves; // Updated possible moves list is returned
-//    }
-
-//    private boolean isIllegal(ChessMove move, TeamColor color) {
-//        return false;
-//    }
-
     /**
      * Makes a move in a chess game
      *
@@ -209,7 +184,12 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        return false;
+        Collection<ChessMove> attackerMoves = this.getAttackerMoves(teamColor, currentBoard);
+        Collection<ChessPosition> attackerEndPositions = this.getEndPositions(attackerMoves);
+        ChessPosition kingPosition = this.getKingPosition(teamColor, currentBoard);
+
+        return attackerEndPositions.contains(kingPosition);
+
 //        boolean inCheck = false;
 //        return inCheck;
 //        ChessPosition kingPosition = getKingPosition(teamColor);
@@ -372,7 +352,10 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (this.teamTurn == teamColor) {
+
+        }
+        return false;
     }
 
     /**
