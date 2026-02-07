@@ -115,6 +115,7 @@ public class ChessGame {
         Collection<ChessMove> kingMoves = currentBoard.getPiece(kingPosition).pieceMoves(currentBoard, kingPosition);
         Collection<ChessMove> attackerMoves = new ArrayList<>();
         Collection<ChessMove> friendlyMoves = new ArrayList<>();
+        Collection<ChessMove> trajectoryMoves = new ArrayList<>();
 //        Collection<ChessMove> kingEndMovesContested = new ArrayList<>();
 
         // Populate attackerMoves and friendlyMoves lists
@@ -148,35 +149,41 @@ public class ChessGame {
                         ChessPiece newKingSpot = currentBoard.getPiece(kingEndPosition);
                         // Is there a space king can move to that will capture an enemy?
                         if (newKingSpot != null) { // yes
-                            ChessGame gameCopy = this;
-                            try {
-                                gameCopy.makeMove(new ChessMove(kingPosition, kingEndPosition, null));
-                                Collection<ChessMove> newAttackerMoves = new ArrayList<>(); // Populate newAttackerMoves list
-                                for (int col = 1; col <= 8; col++) {
-                                    for (int row = 1; row <= 8; row++) {
-                                        ChessPosition position = new ChessPosition(row, col);
-                                        ChessPiece piece = gameCopy.currentBoard.getPiece(position);
-                                        if (piece != null && piece.getTeamColor() != teamColor) {
-                                            Collection<ChessMove> attackerPieceMoves = piece.pieceMoves(currentBoard, position);
-                                            newAttackerMoves.addAll(attackerPieceMoves);
-                                        }
-                                    }
-                                }
-                                Collection<ChessPosition> newAttackerEndPositions = getEndPositions(newAttackerMoves);
-                                // Is new king spot in attacker list?
-                                for (ChessPosition newAttackerEndPosition : newAttackerEndPositions) {
-                                    if (newAttackerEndPosition == kingEndPosition) {
-                                        // CHECKMATE
-                                        inCheck = true;
-                                        return inCheck;
-                                    }
-                                }
-                            }
-                            catch (InvalidMoveException e){
-                                System.out.println("That move is invalid.");
-                            }
+                            // Could be Check or Checkmate, but not either
+                            inCheck = true;
+                            return inCheck;
+//                            ChessGame gameCopy = this;
+//                            try {
+//                                gameCopy.makeMove(new ChessMove(kingPosition, kingEndPosition, null));
+//                                Collection<ChessMove> newAttackerMoves = new ArrayList<>(); // Populate newAttackerMoves list
+//                                for (int col = 1; col <= 8; col++) {
+//                                    for (int row = 1; row <= 8; row++) {
+//                                        ChessPosition position = new ChessPosition(row, col);
+//                                        ChessPiece piece = gameCopy.currentBoard.getPiece(position);
+//                                        if (piece != null && piece.getTeamColor() != teamColor) {
+//                                            Collection<ChessMove> attackerPieceMoves = piece.pieceMoves(currentBoard, position);
+//                                            newAttackerMoves.addAll(attackerPieceMoves);
+//                                        }
+//                                    }
+//                                }
+//                                Collection<ChessPosition> newAttackerEndPositions = getEndPositions(newAttackerMoves);
+//                                // Is new king spot in attacker list?
+//                                for (ChessPosition newAttackerEndPosition : newAttackerEndPositions) {
+//                                    if (newAttackerEndPosition == kingEndPosition) {
+//                                        // CHECKMATE
+//                                        inCheck = true;
+//                                        return inCheck;
+//                                    }
+//                                }
+//                            }
+//                            catch (InvalidMoveException e){
+//                                System.out.println("That move is invalid.");
+//                            }
                         }
                         // no, move on to #4 check
+                        // Can a friendlyPiece block all attacker moves on the king?
+                        Collection<ChessMove>;
+                        Collection<ChessPosition>;
                     }
                 }
                 inCheck = true;
@@ -317,5 +324,73 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.currentBoard;
+    }
+
+    /**
+     * Returns a list of moves where the attacker is one spot before hitting the king
+     *
+     * @param attackerMoves list of all possible attacker moves
+     * @param kingPosition ChessPosition of current team's king
+     */
+
+    private Collection<ChessPosition> getTrajectoryMoves(Collection<ChessMove> attackerMoves, ChessPosition kingPosition) {
+        Collection<ChessPosition> trajectoryPositions = new ArrayList<>();
+        int kingCol = kingPosition.getColumn();
+        int kingRow = kingPosition.getRow();
+
+        // 1. Can you hit the king?
+        for (ChessMove move : attackerMoves) {
+            ChessPosition start = move.getStartPosition();
+            ChessPosition end = move.getEndPosition();
+            ChessPiece.PieceType promotion = move.getPromotionPiece();
+            int attackerCol = start.getColumn();
+            int attackerRow = start.getRow();
+
+            if (end == kingPosition) { // 1. yes
+
+                // 2. What piece are you?
+                ChessPiece.PieceType type = currentBoard.getPiece(start).getPieceType();
+                if (type == ChessPiece.PieceType.ROOK) {
+                    if (attackerCol == kingCol) {
+                        if (attackerRow > kingRow) { // If rook above king
+                            trajectoryPositions.add(new ChessPosition(kingRow + 1, kingCol));
+                        }
+                        else { // If rook below king
+                            trajectoryPositions.add(new ChessPosition(kingRow - 1, kingCol));
+                        }
+                    }
+                    else if (attackerRow == kingRow) {
+                        if (attackerCol > kingCol) { // If rook is to right of king
+                            trajectoryPositions.add(new ChessPosition(kingRow, kingCol + 1));
+                        }
+                        else { // If rook is to the left of king
+                            trajectoryPositions.add(new ChessPosition(kingRow, kingCol - 1));
+                        }
+                    }
+                }
+                if (type == ChessPiece.PieceType.BISHOP) {
+                    if (attackerRow < kingRow) {
+                        if (attackerCol < kingCol) { // bottom left
+                            trajectoryPositions.add(new ChessPosition(kingRow - 1, kingCol - 1));
+                        }
+                        else { // top left
+                            trajectoryPositions.add(new ChessPosition(kingRow - 1, kingCol + 1));
+                        }
+                    }
+                    else {
+                        if (attackerCol < kingCol) { // top left
+                            trajectoryPositions.add(new ChessPosition(kingRow + 1, kingCol - 1));
+                        }
+                        else { // top right
+                            trajectoryPositions.add(new ChessPosition(kingRow + 1, kingCol + 1));
+                        }
+                    }
+                }
+//                if (type == ChessPiece.PieceType.)
+            }
+            // 1. no (no code needed here)
+        }
+
+        return trajectoryPositions;
     }
 }
