@@ -3,7 +3,6 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -53,27 +52,122 @@ public class ChessGame {
 
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = currentBoard.getPiece(startPosition); // Get piece at starting Position
-        if (piece == null) { // If empty spot, return null
+        if (piece == null) {
             return null;
         }
-        TeamColor pieceColor = piece.getTeamColor(); // else, get the team color
-//        if (this.isInCheckmate(pieceColor)) { // If in stalemate, then return an empty list
-//            return new ArrayList<>();
-//        }
-        Collection<ChessMove> filteredMoves = piece.pieceMoves(currentBoard, startPosition); // Get raw moves list
-        Iterator<ChessMove> filteredMovesIterator= filteredMoves.iterator(); // Create iterator for filtering
-        while (filteredMovesIterator.hasNext()) { // While loop removes moves where check is involved
-            ChessMove currentMove = filteredMovesIterator.next();
-            if (isIllegal(currentMove, pieceColor)) {
-                filteredMovesIterator.remove();
+        ChessPosition kingPosition = this.getKingPosition(piece.getTeamColor(), currentBoard); // King location
+        Collection<ChessMove> pieceMoves = piece.pieceMoves(currentBoard, startPosition);
+
+        // Check pieceMoves to see if each attackerList generated after a move puts the king's location in there
+        Iterator<ChessMove> pieceMovesIterator = pieceMoves.iterator();
+        while (pieceMovesIterator.hasNext()) {
+            ChessMove move = pieceMovesIterator.next();
+            Collection<ChessMove> attackerMoves = new ArrayList<>();
+            ChessGame copyGame = new ChessGame(); // New game
+            ChessBoard copyBoard = this.deepCopy(currentBoard);
+            copyGame.setBoard(copyBoard); // Set board to copy of original game's board
+            // Do the "move"
+            copyGame.currentBoard.addPiece(move.getEndPosition(), null);
+            if (move.getPromotionPiece() == null) {
+                copyGame.currentBoard.addPiece(move.getEndPosition(), piece);
+            }
+            else {
+                copyGame.currentBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+            }
+            copyGame.currentBoard.addPiece(move.getStartPosition(), null);
+            attackerMoves = copyGame.getAttackerMoves(piece.getTeamColor(), copyGame.currentBoard); // Generate updated attackerMove list
+            ChessPosition newKingPosition = copyGame.getKingPosition(piece.getTeamColor(), copyGame.currentBoard);
+            for (ChessMove attackerMove : attackerMoves) {
+                if (attackerMove.getEndPosition().equals(newKingPosition)) {
+                    pieceMovesIterator.remove();
+                    break;
+                }
             }
         }
-        return filteredMoves; // Updated possible moves list is returned
+        return pieceMoves;
     }
 
-    private boolean isIllegal(ChessMove move, TeamColor color) {
-        return false;
+    private ChessBoard deepCopy(ChessBoard original) {
+        ChessBoard copy = new ChessBoard();
+
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = original.getPiece(pos);
+                // If there is a piece, put it on the new board
+                if (piece != null) {
+                    copy.addPiece(pos, piece);
+                }
+            }
+        }
+        return copy;
     }
+
+
+    /**
+     * Returns an enemy's list of possible moves
+     *
+     * @param teamColor not attacker team
+     * @param board ChessBoard object
+     */
+    private Collection<ChessMove> getAttackerMoves(TeamColor teamColor, ChessBoard board) {
+        Collection<ChessMove> attackerMoves = new ArrayList<>();
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    attackerMoves.addAll(piece.pieceMoves(board, position));
+                }
+            }
+        }
+        return attackerMoves;
+    }
+
+    /**
+     * Returns a king's position
+     *
+     * @param teamColor not attacker team
+     * @param board ChessBoard object
+     */
+    private ChessPosition getKingPosition(TeamColor teamColor, ChessBoard board) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(position);
+                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    return position;
+                }
+            }
+        }
+        return null;
+    }
+
+
+
+
+
+//        if (piece == null) { // If empty spot, return null
+//            return null;
+//        }
+//        TeamColor pieceColor = piece.getTeamColor(); // else, get the team color
+////        if (this.isInCheckmate(pieceColor)) { // If in stalemate, then return an empty list
+////            return new ArrayList<>();
+////        }
+//        Collection<ChessMove> filteredMoves = piece.pieceMoves(currentBoard, startPosition); // Get raw moves list
+//        Iterator<ChessMove> filteredMovesIterator= filteredMoves.iterator(); // Create iterator for filtering
+//        while (filteredMovesIterator.hasNext()) { // While loop removes moves where check is involved
+//            ChessMove currentMove = filteredMovesIterator.next();
+//            if (isIllegal(currentMove, pieceColor)) {
+//                filteredMovesIterator.remove();
+//            }
+//        }
+//        return filteredMoves; // Updated possible moves list is returned
+//    }
+
+//    private boolean isIllegal(ChessMove move, TeamColor color) {
+//        return false;
+//    }
 
     /**
      * Makes a move in a chess game
@@ -287,18 +381,18 @@ public class ChessGame {
      * @param teamColor the team who's king we're looking for
      */
 
-    private ChessPosition getKingPosition(TeamColor teamColor) {
-        ChessPosition kingPosition = null;
-        for (int col = 1; col <=8; col++) {
-            for (int row = 1; row <=8; row++) {
-                ChessPiece piece = currentBoard.getPiece(new ChessPosition(row, col));
-                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
-                    kingPosition = new ChessPosition(row, col);
-                }
-            }
-        }
-        return kingPosition;
-    }
+//    private ChessPosition getKingPosition(TeamColor teamColor) {
+//        ChessPosition kingPosition = null;
+//        for (int col = 1; col <=8; col++) {
+//            for (int row = 1; row <=8; row++) {
+//                ChessPiece piece = currentBoard.getPiece(new ChessPosition(row, col));
+//                if (piece != null && piece.getTeamColor() == teamColor && piece.getPieceType() == ChessPiece.PieceType.KING) {
+//                    kingPosition = new ChessPosition(row, col);
+//                }
+//            }
+//        }
+//        return kingPosition;
+//    }
 
     /**
      * Returns with a list of end positions (ChessPosition).
