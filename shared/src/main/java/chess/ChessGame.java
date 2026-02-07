@@ -16,7 +16,7 @@ public class ChessGame {
     ChessBoard currentBoard = new ChessBoard(); // Initialize starting chessboard
     private TeamColor teamTurn = TeamColor.WHITE; // Initialize with white going first
     public ChessGame() {
-//        currentBoard.resetBoard();
+        currentBoard.resetBoard();
     }
 
     /**
@@ -350,12 +350,25 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if (teamTurn == teamColor) {
-            if (this.isInCheck(teamColor)) { // In Check?
-                ChessPosition kingPosition = this.getKingPosition(teamColor, currentBoard);
-                Collection<ChessMove> validMoves = this.validMoves(kingPosition);
-                return validMoves.isEmpty();
+        if (teamTurn == teamColor && this.isInCheck(teamColor)) {
+            for (int row=1; row<=8; row++) {
+                for (int col=1; col<=8; col++) {
+                    ChessPosition position = new ChessPosition(row, col);
+                    ChessPiece piece = currentBoard.getPiece(position);
+                    if (piece != null && piece.getTeamColor() == teamColor) {
+                        if (!this.validMoves(position).isEmpty()) {
+                            return false;
+                        }
+                    }
+                }
             }
+            return true;
+
+//            if (this.isInCheck(teamColor)) { // In Check?
+//                ChessPosition kingPosition = this.getKingPosition(teamColor, currentBoard);
+//                Collection<ChessMove> validMoves = this.validMoves(kingPosition);
+//                return validMoves.isEmpty();
+//            }
         }
         return false;
         // Create list of possible moves for king
@@ -375,18 +388,19 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (this.teamTurn == teamColor && !isInCheck(teamColor)) { // Check that it is our turn and we aren't in check
-            for (int row=1; row<=8; row++) {
-                for (int col=1; col<=8; col++) {
+            for (int row = 1; row <= 8; row++) {
+                for (int col = 1; col <= 8; col++) {
                     ChessPosition position = new ChessPosition(row, col);
                     ChessPiece piece = currentBoard.getPiece(position);
                     if (piece != null && piece.getTeamColor() == teamColor) { // Look at all our team's remaining pieces
-                        if (!validMoves(position).isEmpty()) { // If they have valid moves, then it isn't a stalemate
+                        if (!validMoves(position).isEmpty()) { // If they also have zero valid moves...
                             return false;
                         }
                     }
                 }
             }
             return true;
+        }
         return false;
     }
 
