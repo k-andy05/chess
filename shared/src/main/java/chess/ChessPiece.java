@@ -260,6 +260,39 @@ public class ChessPiece {
                     }
                 }
             }
+            // Castling
+            ChessPiece king = board.getPiece(myPosition);
+            if (king.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                ChessPiece uno = board.getPiece(new ChessPosition(1, 1));
+                ChessPiece dos = board.getPiece(new ChessPosition(1, 2));
+                ChessPiece tres = board.getPiece(new ChessPosition(1, 3));
+                ChessPiece cuatro = board.getPiece(new ChessPosition(1, 4));
+                ChessPiece cinco = board.getPiece(new ChessPosition(1, 5));
+                ChessPiece seis = board.getPiece(new ChessPosition(1, 6));
+                ChessPiece siete = board.getPiece(new ChessPosition(1, 7));
+                ChessPiece ocho = board.getPiece(new ChessPosition(1, 8));
+//                if (uno != null) {PieceType one = uno.getPieceType();}
+//                if (dos != null) {PieceType two = dos.getPieceType();}
+//                if (tres != null) {PieceType three = tres.getPieceType();}
+//                if (cuatro != null) {PieceType four = cuatro.getPieceType();}
+//                if (cinco != null) {PieceType five = cinco.getPieceType();}
+//                if (seis != null) {PieceType six = seis.getPieceType();}
+//                if (siete != null) {PieceType seven = siete.getPieceType();}
+//                if (ocho != null) {PieceType eight = ocho.getPieceType();}
+                // Check left of king
+                if (uno != null && uno.getPieceType() == PieceType.ROOK && dos != null && tres == null && cuatro == null && cinco != null && cinco.getPieceType() == PieceType.KING) {
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(1, 3), null)); // king
+                    possibleMoves.add(new ChessMove(new ChessPosition(1, 1), new ChessPosition(1, 4), null)); // rook
+                }
+                if (ocho != null && ocho.getPieceType() == PieceType.ROOK && siete == null && seis == null && cinco != null && cinco.getPieceType() == PieceType.KING) {
+                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(1, 3), null));
+                    possibleMoves.add(new ChessMove(new ChessPosition(1, 1), new ChessPosition(1, 4), null));
+                }
+            }
+            // 1. king in starting position and at least one rook haven't moved
+            // 2. there are no spaces between them
+            // 3. king not in check
+            // 4. king cannot move to a square that can be attacked
         }
 
 
