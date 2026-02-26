@@ -7,63 +7,63 @@ import result.*;
 import request.*;
 
 // This class will take json from server, direct it to correct service class, and format args as a Request class object
-// it will also receive different response objects and pass on that data to the server
+// it will also receive different result objects and pass on that data to the server
 public class Handler {
 
     private final Service service = new Service();
 
     public void clear(Context ctx) {
-        ClearResult response = service.clear();
+        ClearResult result = service.clear();
         ctx.status(200);
-        ctx.json(response);
+        ctx.json(result);
     }
 
     public void register(Context ctx) {
         // TODO add exception handling later to allow for 200/403/400/500 errors
         RegisterRequest request = ctx.bodyAsClass(RegisterRequest.class);
-        RegisterResult response = service.register(request);
+        RegisterResult result = service.register(request);
 
         ctx.status(200);
-        ctx.json(response);
+        ctx.json(result);
     }
 
     public void login(Context ctx) {
         LoginRequest request = ctx.bodyAsClass(LoginRequest.class);
-        LoginResult response = service.login(request);
+        LoginResult result = service.login(request);
 
         ctx.status(200);
-        ctx.json(response);
+        ctx.json(result);
     }
 
     public void logout(Context ctx) {
         LogoutRequest request = ctx.bodyAsClass(LogoutRequest.class);
-        LogoutResult response = service.logout(request);
+        LogoutResult result = service.logout(request);
 
         ctx.status(200);
-        ctx.json(response);
+        ctx.json(result);
     }
 
     public void list(Context ctx) {
         ListRequest request = ctx.bodyAsClass(ListRequest.class);
-        ListResult response = service.list(request);
+        ListResult result = service.list(request);
 
         ctx.status(200);
-        ctx.json(response);
+        ctx.json(result);
     }
 
     public void create(Context ctx) {
         CreateRequest request = ctx.bodyAsClass(CreateRequest.class);
-        CreateResult response = service.create(request);
+        CreateResult result = service.create(request);
 
         ctx.status(200);
-        ctx.json(response);
+        ctx.json(result);
     }
 
     public void join(Context ctx) {
         JoinRequest request = ctx.bodyAsClass(JoinRequest.class);
-        JoinResult response = service.join(request);
+        JoinResult result = service.join(request);
 
         ctx.status(200);
-        ctx.json(response);
+        ctx.json(result);
     }
 }
