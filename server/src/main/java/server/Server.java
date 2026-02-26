@@ -1,5 +1,6 @@
 package server;
 
+import handler.*;
 import io.javalin.*;
 
 public class Server {
@@ -13,39 +14,39 @@ public class Server {
 
         // Clear endpoint
         javalin.delete("/db", ctx -> { // If user sends a delete http request to the /db path, then take the Context object from the message which you can then use
-            // TODO call clear service later
+            new Handler().clear(ctx);
             ctx.status(200);
         });
 
         // Register endpoint
         javalin.post("/user", ctx -> {
-            // TODO call service functions later
+            new Handler().register(ctx);
             ctx.status(200);
         });
 
         // Login endpoint
         javalin.post("/session", ctx -> {
-           // TODO call service functions later
+           new Handler().login(ctx);
         });
 
         // Logout endpoint
         javalin.delete("/session", ctx -> {
-           // TODO call service functions later
+           new Handler().delete(ctx);
         });
 
         // List endpoint
         javalin.get("/game", ctx -> {
-            // TODO call service functions later
+            new Handler().list(ctx);
         });
 
         // Create Game endpoint
         javalin.post("/game", ctx -> {
-            // TODO call service functions later
+            new Handler().create(ctx);
         });
 
         // Join Game endpoint
         javalin.put("/game", ctx -> {
-            // TODO call service functions later
+            new Handler().join(ctx);
         });
     }
 
