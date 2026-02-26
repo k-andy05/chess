@@ -50,17 +50,15 @@ public class Service {
 
     public CreateResult create(CreateRequest request) {
         AuthData authData = new AuthData(AuthAccess.getAuth(request)); // Just need auth token as arg (it is to validate logged in user)
-        GameData gameData = new GameData(request); // Needs gameid, whiteUsername, blackUsername, gameName, and ChessBoard object
-        CreateResult result = new CreateResult(gameData);
-        return result;
+        GameData gameData = new GameData(gameID, whiteUsername, blackUsername, request.gameName, Chessboard); // Needs gameid, whiteUsername, blackUsername, gameName, and ChessBoard object
+        return new CreateResult(gameData.gameID);
     }
 
     public JoinResult join(JoinRequest request) {
-        AuthData authData = new AuthData(DataAccess.getAuth(request)); // Just need auth token as arg (it is to validate logged in user)
-        GameData gameData = DataAccess.getGame(request); // arg should be gameID
-        DataAccess.userAccess(request); // uses playerColor and gameID
-        JoinResult result = new JoinResult();
-        return result;
+        AuthData authData = new AuthData(AuthAccess.getAuth(request.authToken)); // Just need auth token as arg (it is to validate logged in user)
+        GameData gameData = GameData.getGame(request.gameID); // arg should be gameID
+        GameData.joinGame(request.playerColor, request.gameID); // uses playerColor and gameID
+        return new JoinResult();
     }
 
     private String AuthToken() {
