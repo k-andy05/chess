@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessBoard;
 import model.*;
 import request.*;
 import result.ClearResult;
@@ -48,13 +49,15 @@ public class Service {
 
     public CreateResult create(CreateRequest request) {
         AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
-        GameData gameData = new GameData(gameID, whiteUsername, blackUsername, request.gameName, Chessboard); // Needs gameid, whiteUsername, blackUsername, gameName, and ChessBoard object
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        GameData gameData = new GameData(1234, "player1white", "player2black", request.gameName, board); // Needs gameid, whiteUsername, blackUsername, gameName, and ChessBoard object
         return new CreateResult(gameData.gameID);
     }
 
     public JoinResult join(JoinRequest request) {
         AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
-        GameData gameData = GameData.getGame(request.gameID); // arg should be gameID
+        GameData gameData = GameDAO.getGame(request.gameID); // arg should be gameID
         GameDAO.joinGame(request.playerColor, request.gameID); // uses playerColor and gameID
         return new JoinResult();
     }

@@ -24,15 +24,16 @@ public class Handler {
         RegisterResult result = service.register(request);
 
         ctx.status(200);
-        ctx.json(result);
+        ctx.result(result.toJson());
+        ctx.contentType("application/json");
     }
 
     public void login(Context ctx) {
-        LoginRequest request = ctx.bodyAsClass(LoginRequest.class);
+        LoginRequest request = new LoginRequest(ctx.body());
         LoginResult result = service.login(request);
 
         ctx.status(200);
-        ctx.json(result);
+        ctx.result(result.toJson());
     }
 
     public void logout(Context ctx) {

@@ -8,4 +8,8 @@ public class LoginResult {
         this.username = username;
         this.authToken = authToken;
     }
+
+    public String toJson() {
+        return "{\"username\":\"" + username + "\",\"authToken\":" + authToken + "\"}";
+    }
 }

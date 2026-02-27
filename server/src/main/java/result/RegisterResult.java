@@ -8,4 +8,8 @@ public class RegisterResult {
         this.authToken = authToken;
         this.username = username;
     }
+
+    public String toJson() {
+        return "{\"username\":\"" + username + "\",\"authToken\"" + authToken + "\"}";
+    }
 }
