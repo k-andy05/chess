@@ -21,13 +21,13 @@ public class Service {
 
     public RegisterResult register(RegisterRequest request) {
         UserDAO.createUser(request.username, request.password, request.email);
-        AuthDAO.createAuth(request.username);
         String authToken = generateToken();
+        AuthDAO.createAuth(authToken, request.username);
         return new RegisterResult(authToken, request.username);
     }
 
     public LoginResult login(LoginRequest request) {
-        UserData user = new UserData(UserDAO.getUser(request.username)); //TODO should just need to pass in username
+        UserData user = UserDAO.getUser(request.username); //TODO should just need to pass in username
         // TODO Validate password
         String authToken = generateToken();
         AuthDAO.createAuth(authToken, request.username); // TODO, need username and way to generate auth token
@@ -35,27 +35,27 @@ public class Service {
     }
 
     public LogoutResult logout(LogoutRequest request) {
-        AuthData authData = new AuthData(AuthDAO.getAuth(request.authToken)); // Just need to pass in authToken as arg
+        AuthData authData = AuthDAO.getAuth(request.authToken); // Just need to pass in authToken as arg
         AuthDAO.deleteAuth(authData.authToken); // Pass in auth token only
         return new LogoutResult();
     }
 
     public ListResult list(ListRequest request) {
-        AuthData authData = new AuthData(AuthDAO.getAuth(request.authToken)); // Just need auth token
+        AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token
         ArrayList<GameData> gameList = GameDAO.getGames();
         return new ListResult(gameList);
     }
 
     public CreateResult create(CreateRequest request) {
-        AuthData authData = new AuthData(AuthDAO.getAuth(request)); // Just need auth token as arg (it is to validate logged in user)
+        AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         GameData gameData = new GameData(gameID, whiteUsername, blackUsername, request.gameName, Chessboard); // Needs gameid, whiteUsername, blackUsername, gameName, and ChessBoard object
         return new CreateResult(gameData.gameID);
     }
 
     public JoinResult join(JoinRequest request) {
-        AuthData authData = new AuthData(AuthDAO.getAuth(request.authToken)); // Just need auth token as arg (it is to validate logged in user)
+        AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         GameData gameData = GameData.getGame(request.gameID); // arg should be gameID
-        GameData.joinGame(request.playerColor, request.gameID); // uses playerColor and gameID
+        GameDAO.joinGame(request.playerColor, request.gameID); // uses playerColor and gameID
         return new JoinResult();
     }
 
