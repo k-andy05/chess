@@ -15,7 +15,7 @@ public class Handler {
     public void clear(Context ctx) {
         ClearResult result = service.clear();
         ctx.status(200);
-        ctx.json(result);
+        ctx.json(result.toJson());
     }
 
     public void register(Context ctx) {

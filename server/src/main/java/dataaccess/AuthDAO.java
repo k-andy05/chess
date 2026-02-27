@@ -1,10 +1,17 @@
 package dataaccess;
 
 import model.AuthData;
+import model.GameData;
+
+import java.util.HashMap;
 
 public class AuthDAO {
 
-    public static void clearAllAuth() {}
+    private static final HashMap<String, AuthData> sessions = new HashMap<>();
+
+    public static void clearAllAuth() {
+        sessions.clear();
+    }
 
     public static void createAuth(String authToken, String username) {}
 

@@ -1,12 +1,14 @@
 package service;
 
 import chess.ChessBoard;
+import exception.UserNotFoundException;
 import model.*;
 import request.*;
 import result.ClearResult;
 import dataaccess.*;
 import result.*;
 
+import java.net.UnknownServiceException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -29,7 +31,9 @@ public class Service {
 
     public LoginResult login(LoginRequest request) {
         UserData user = UserDAO.getUser(request.username); //TODO should just need to pass in username
-        // TODO Validate password
+        if (user == null) {
+            throw new UserNotFoundException("Error: Username not a registered user");
+        }
         String authToken = generateToken();
         AuthDAO.createAuth(authToken, request.username); // TODO, need username and way to generate auth token
         return new LoginResult(request.username, authToken); // TODO, need username and auth token to make LoginResult object
