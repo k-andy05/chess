@@ -6,6 +6,8 @@ import service.*;
 import result.*;
 import request.*;
 
+import java.util.Map;
+
 // This class will take json from server, direct it to correct service class, and format args as a Request class object
 // it will also receive different result objects and pass on that data to the server
 public class Handler {
@@ -39,7 +41,8 @@ public class Handler {
     public void logout(Context ctx) {
         LogoutRequest request = new LogoutRequest(ctx);
         LogoutResult result = service.logout(request);
-
+        Map<String, String> headerMap = ctx.headerMap();
+        System.out.println(headerMap);
         ctx.status(200);
         ctx.json(result.toJson());
     }

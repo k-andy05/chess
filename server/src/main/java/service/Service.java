@@ -1,7 +1,7 @@
 package service;
 
 import chess.ChessBoard;
-import exception.UserNotFoundException;
+import exception.*;
 import model.*;
 import request.*;
 import result.ClearResult;
@@ -23,6 +23,10 @@ public class Service {
     }
 
     public RegisterResult register(RegisterRequest request) {
+        UserData checkUser= UserDAO.getUser(request.username);
+        if (checkUser != null) {
+            throw new InvalidRequestException(403, "Error: username already taken");
+        }
         UserDAO.createUser(request.username, request.password, request.email);
         String authToken = generateToken();
         AuthDAO.createAuth(authToken, request.username);
@@ -30,10 +34,13 @@ public class Service {
     }
 
     public LoginResult login(LoginRequest request) {
-//        UserData user = UserDAO.getUser(request.username); //TODO should just need to pass in username
-//        if (user == null) {
-//            throw new UserNotFoundException("Error: Username not a registered user");
-//        }
+        UserData user = UserDAO.getUser(request.username); //TODO should just need to pass in username
+        if (user == null) {
+            throw new InvalidRequestException(403, "Error: Username not a registered user");
+        }
+        if (!user.password.equals(request.password)) {
+            throw new InvalidRequestException(401, "Error: Incorrect password");
+        }
         String authToken = generateToken();
         AuthDAO.createAuth(authToken, request.username); // TODO, need username and way to generate auth token
         return new LoginResult(request.username, authToken); // TODO, need username and auth token to make LoginResult object
@@ -41,18 +48,27 @@ public class Service {
 
     public LogoutResult logout(LogoutRequest request) {
         AuthData authData = AuthDAO.getAuth(request.authToken); // Just need to pass in authToken as arg
+        if (authData == null) {
+            throw new InvalidRequestException(401, "Error: Session not found");
+        }
         AuthDAO.deleteAuth(authData.authToken); // Pass in auth token only
         return new LogoutResult();
     }
 
     public ListResult list(ListRequest request) {
         AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token
+        if (authData == null) {
+            throw new InvalidRequestException(401, "Error: Session not found");
+        }
         ArrayList<GameData> gameList = GameDAO.getGames();
         return new ListResult(gameList);
     }
 
     public CreateResult create(CreateRequest request) {
         AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
+        if (authData == null) {
+            throw new InvalidRequestException(401, "Error: Session not found");
+        }
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         GameData gameData = new GameData(1234, "player1white", "player2black", request.gameName, board); // Needs gameid, whiteUsername, blackUsername, gameName, and ChessBoard object
@@ -61,7 +77,23 @@ public class Service {
 
     public JoinResult join(JoinRequest request) {
         AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
+        if (authData == null) {
+            throw new InvalidRequestException(401, "Error: Session not found");
+        }
         GameData gameData = GameDAO.getGame(request.gameID); // arg should be gameID
+        if (gameData == null) {
+            throw new InvalidRequestException(400, "Error: Game not found");
+        }
+        if (request.playerColor.equals("WHITE")) {
+            if (gameData.whiteUsername != null) {
+                throw new InvalidRequestException(403, "Error: White team color already taken");
+            }
+        }
+        if (request.playerColor.equals("BLACK")) {
+            if (gameData.blackUsername != null) {
+                throw new InvalidRequestException(403, "Error: Black team color already taken");
+            }
+        }
         GameDAO.joinGame(request.playerColor, request.gameID); // uses playerColor and gameID
         return new JoinResult();
     }

@@ -1,5 +1,6 @@
 package server;
 
+import exception.InvalidRequestException;
 import exception.UserNotFoundException;
 import handler.*;
 import io.javalin.*;
@@ -51,8 +52,8 @@ public class Server {
             new Handler().join(ctx);
         });
 
-        javalin.exception(UserNotFoundException.class, (e, ctx) -> {
-            ctx.status(401);
+        javalin.exception(InvalidRequestException.class, (e, ctx) -> {
+            ctx.status(e.getStatusCode());
             ctx.json(Map.of("message", e.getMessage()));
         });
     }
