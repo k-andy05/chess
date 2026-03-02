@@ -10,5 +10,25 @@ public class ListResult {
         this.gameList = gameList;
     }
 
-    public String toJson() {return "{}";}
+    public String toJson() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"games\":[");
+
+        for (int i = 0; i < gameList.size(); i++) {
+            GameData game = gameList.get(i);
+            sb.append("{")
+                    .append("\"gameID\":").append(game.gameID).append(",")
+                    .append("\"whiteUsername\":\"").append(game.whiteUsername).append("\",")
+                    .append("\"blackUsername\":\"").append(game.blackUsername).append("\",")
+                    .append("\"gameName\":\"").append(game.gameName).append("\"")
+                    .append("}");
+
+            if (i < gameList.size() - 1) {
+                sb.append(",");
+            }
+        }
+
+        sb.append("]}");
+        return sb.toString();
+    }
 }

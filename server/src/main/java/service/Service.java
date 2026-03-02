@@ -12,6 +12,7 @@ import result.*;
 import java.net.UnknownServiceException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 
 // This class will take RegisterRequest and call correct sequence of service class methods and return a Register Result
@@ -89,6 +90,10 @@ public class Service {
     }
 
     public JoinResult join(JoinRequest request) throws InvalidRequestException {
+        Set<String> validColors = Set.of("WHITE", "BLACK");
+        if (!validColors.contains(request.playerColor)) {
+            throw new InvalidRequestException(400, "Error: Invalid team color");
+        }
         if (request.authToken == null || request.playerColor == null) {
             throw new InvalidRequestException(400, "Error: AuthToken and PlayerColor and GameID cannot be empty");
         }
@@ -101,7 +106,7 @@ public class Service {
             throw new InvalidRequestException(400, "Error: Game not found");
         }
         if (request.playerColor.equals("WHITE")) {
-            if (!gameData.whiteUsername.equals(request.authToken)) {
+            if (gameData.whiteUsername != null) {
                 throw new InvalidRequestException(403, "Error: White team color already taken");
             }
         }

@@ -47,7 +47,7 @@ public class GameDAO {
     public void createGame(String gameName) {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        GameData newGame = new GameData(nextGameNumber, "", "", gameName, board);
+        GameData newGame = new GameData(nextGameNumber, null, null, gameName, board);
         nextGameNumber++;
         games.put(gameName, newGame);
     }
