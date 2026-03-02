@@ -13,7 +13,9 @@ public class AuthDAO {
         sessions.clear();
     }
 
-    public static void createAuth(String authToken, String username) {}
+    public static void createAuth(String authToken, String username) {
+        sessions.put(authToken, new AuthData(authToken, username));
+    }
 
     public static AuthData getAuth(String authToken) {
         return new AuthData("test_auth_token", "user3");

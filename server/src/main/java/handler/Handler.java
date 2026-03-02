@@ -20,12 +20,12 @@ public class Handler {
 
     public void register(Context ctx) {
         // TODO add exception handling later to allow for 200/403/400/500 errors
-        RegisterRequest request = ctx.bodyAsClass(RegisterRequest.class);
+        RegisterRequest request = new RegisterRequest(ctx.body());
         RegisterResult result = service.register(request);
 
         ctx.status(200);
         ctx.result(result.toJson());
-        ctx.contentType("application/json");
+//        ctx.contentType("application/json");
     }
 
     public void login(Context ctx) {
@@ -37,34 +37,34 @@ public class Handler {
     }
 
     public void logout(Context ctx) {
-        LogoutRequest request = ctx.bodyAsClass(LogoutRequest.class);
+        LogoutRequest request = new LogoutRequest(ctx);
         LogoutResult result = service.logout(request);
 
         ctx.status(200);
-        ctx.json(result);
+        ctx.json(result.toJson());
     }
 
     public void list(Context ctx) {
-        ListRequest request = ctx.bodyAsClass(ListRequest.class);
+        ListRequest request = new ListRequest(ctx);
         ListResult result = service.list(request);
 
         ctx.status(200);
-        ctx.json(result);
+        ctx.json(result.toJson());
     }
 
     public void create(Context ctx) {
-        CreateRequest request = ctx.bodyAsClass(CreateRequest.class);
+        CreateRequest request = new CreateRequest(ctx);
         CreateResult result = service.create(request);
 
         ctx.status(200);
-        ctx.json(result);
+        ctx.result(result.toJson());
     }
 
     public void join(Context ctx) {
-        JoinRequest request = ctx.bodyAsClass(JoinRequest.class);
+        JoinRequest request = new JoinRequest(ctx);
         JoinResult result = service.join(request);
 
         ctx.status(200);
-        ctx.json(result);
+        ctx.json(result.toJson());
     }
 }

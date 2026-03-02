@@ -10,6 +10,6 @@ public class RegisterResult {
     }
 
     public String toJson() {
-        return "{\"username\":\"" + username + "\",\"authToken\"" + authToken + "\"}";
+        return "{\"username\":\"" + username + "\",\"authToken\":\"" + authToken + "\"}";
     }
 }

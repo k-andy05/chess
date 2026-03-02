@@ -30,10 +30,10 @@ public class Service {
     }
 
     public LoginResult login(LoginRequest request) {
-        UserData user = UserDAO.getUser(request.username); //TODO should just need to pass in username
-        if (user == null) {
-            throw new UserNotFoundException("Error: Username not a registered user");
-        }
+//        UserData user = UserDAO.getUser(request.username); //TODO should just need to pass in username
+//        if (user == null) {
+//            throw new UserNotFoundException("Error: Username not a registered user");
+//        }
         String authToken = generateToken();
         AuthDAO.createAuth(authToken, request.username); // TODO, need username and way to generate auth token
         return new LoginResult(request.username, authToken); // TODO, need username and auth token to make LoginResult object

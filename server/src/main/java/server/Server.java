@@ -33,7 +33,7 @@ public class Server {
 
         // Logout endpoint
         javalin.delete("/session", ctx -> {
-           new Handler().clear(ctx);
+           new Handler().logout(ctx);
         });
 
         // List endpoint

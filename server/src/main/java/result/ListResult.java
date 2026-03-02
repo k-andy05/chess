@@ -9,4 +9,6 @@ public class ListResult {
     public ListResult(ArrayList<GameData> gameList) {
         this.gameList = gameList;
     }
+
+    public String toJson() {return "{}";}
 }

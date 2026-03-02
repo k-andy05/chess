@@ -6,4 +6,8 @@ public class CreateResult {
     public CreateResult(int gameID) {
         this.gameID = gameID;
     }
+
+    public String toJson() {
+        return "{\"gameID\":\"" + gameID + "\"}";
+    }
 }
