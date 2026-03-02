@@ -14,40 +14,43 @@ import java.util.UUID;
 
 // This class will take RegisterRequest and call correct sequence of service class methods and return a Register Result
 public class Service {
+    private final AuthDAO authDAO = new AuthDAO();
+    private final UserDAO userDAO = new UserDAO();
+    private final GameDAO gameDAO = new GameDAO();
 
     public ClearResult clear () { // Will need to figure out how to check that db was cleared, then create ClearResponse instance and send it back
-        AuthDAO.clearAllAuth();
-        GameDAO.clearAllGame();
-        UserDAO.clearAllUser();
+        authDAO.clearAllAuth();
+        gameDAO.clearAllGame();
+        userDAO.clearAllUser();
         return new ClearResult();
     }
 
     public RegisterResult register(RegisterRequest request) {
-        UserData checkUser= UserDAO.getUser(request.username);
+        UserData checkUser= userDAO.getUser(request.username);
         if (checkUser != null) {
             throw new InvalidRequestException(403, "Error: username already taken");
         }
-        UserDAO.createUser(request.username, request.password, request.email);
+        userDAO.createUser(request.username, request.password, request.email);
         String authToken = generateToken();
-        AuthDAO.createAuth(authToken, request.username);
+        authDAO.createAuth(authToken, request.username);
         return new RegisterResult(authToken, request.username);
     }
 
-    public LoginResult login(LoginRequest request) {
-        UserData user = UserDAO.getUser(request.username); //TODO should just need to pass in username
+    public LoginResult login(LoginRequest request) throws InvalidRequestException {
+        UserData user = userDAO.getUser(request.username); //TODO should just need to pass in username
         if (user == null) {
-            throw new InvalidRequestException(403, "Error: Username not a registered user");
+            throw new InvalidRequestException(401, "Error: Username not a registered user");
         }
         if (!user.password.equals(request.password)) {
-            throw new InvalidRequestException(401, "Error: Incorrect password");
+            throw new InvalidRequestException(400, "Error: Incorrect password");
         }
         String authToken = generateToken();
-        AuthDAO.createAuth(authToken, request.username); // TODO, need username and way to generate auth token
+        authDAO.createAuth(authToken, request.username); // TODO, need username and way to generate auth token
         return new LoginResult(request.username, authToken); // TODO, need username and auth token to make LoginResult object
     }
 
     public LogoutResult logout(LogoutRequest request) {
-        AuthData authData = AuthDAO.getAuth(request.authToken); // Just need to pass in authToken as arg
+        AuthData authData = authDAO.getAuth(request.authToken); // Just need to pass in authToken as arg
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
@@ -56,16 +59,16 @@ public class Service {
     }
 
     public ListResult list(ListRequest request) {
-        AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token
+        AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
-        ArrayList<GameData> gameList = GameDAO.getGames();
+        ArrayList<GameData> gameList = gameDAO.getGames();
         return new ListResult(gameList);
     }
 
     public CreateResult create(CreateRequest request) {
-        AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
+        AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
@@ -76,11 +79,11 @@ public class Service {
     }
 
     public JoinResult join(JoinRequest request) {
-        AuthData authData = AuthDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
+        AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
-        GameData gameData = GameDAO.getGame(request.gameID); // arg should be gameID
+        GameData gameData = gameDAO.getGame(request.gameID); // arg should be gameID
         if (gameData == null) {
             throw new InvalidRequestException(400, "Error: Game not found");
         }
@@ -94,7 +97,7 @@ public class Service {
                 throw new InvalidRequestException(403, "Error: Black team color already taken");
             }
         }
-        GameDAO.joinGame(request.playerColor, request.gameID); // uses playerColor and gameID
+        gameDAO.joinGame(request.playerColor, request.gameID); // uses playerColor and gameID
         return new JoinResult();
     }
 

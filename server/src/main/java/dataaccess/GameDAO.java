@@ -10,13 +10,13 @@ import java.util.Random;
 
 public class GameDAO {
 
-    private static final ArrayList<GameData> games = new ArrayList<>();
+    private final ArrayList<GameData> games = new ArrayList<>();
 
-    public static void clearAllGame() {
+    public void clearAllGame() {
         games.clear();
     }
 
-    public static ArrayList<GameData> getGames() {
+    public ArrayList<GameData> getGames() {
         return new ArrayList<>(games);
 //        ArrayList<GameData> gameList = new ArrayList<>();
 //        ChessBoard test_board = new ChessBoard();
@@ -26,9 +26,9 @@ public class GameDAO {
 //        return gameList;
     }
 
-    public static void joinGame(String playerColor, int gameID) {}
+    public void joinGame(String playerColor, int gameID) {}
 
-    public static GameData getGame(int gameID) {
+    public GameData getGame(int gameID) {
         ChessBoard test_board = new ChessBoard();
         test_board.resetBoard();
         return new GameData(1111, "whitePlayer3", "blackPlayer4", "test_game2", test_board);

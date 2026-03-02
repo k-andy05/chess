@@ -1,5 +1,6 @@
 package handler;
 
+import exception.InvalidRequestException;
 import io.javalin.http.Context;
 import request.RegisterRequest;
 import service.*;
@@ -20,7 +21,7 @@ public class Handler {
         ctx.json(result.toJson());
     }
 
-    public void register(Context ctx) {
+    public void register(Context ctx) throws InvalidRequestException {
         // TODO add exception handling later to allow for 200/403/400/500 errors
         RegisterRequest request = new RegisterRequest(ctx.body());
         RegisterResult result = service.register(request);
@@ -30,7 +31,7 @@ public class Handler {
 //        ctx.contentType("application/json");
     }
 
-    public void login(Context ctx) {
+    public void login(Context ctx) throws InvalidRequestException {
         LoginRequest request = new LoginRequest(ctx.body());
         LoginResult result = service.login(request);
 
@@ -41,8 +42,8 @@ public class Handler {
     public void logout(Context ctx) {
         LogoutRequest request = new LogoutRequest(ctx);
         LogoutResult result = service.logout(request);
-        Map<String, String> headerMap = ctx.headerMap();
-        System.out.println(headerMap);
+//        Map<String, String> headerMap = ctx.headerMap();
+//        System.out.println(headerMap);
         ctx.status(200);
         ctx.json(result.toJson());
     }

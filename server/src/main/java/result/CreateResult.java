@@ -8,6 +8,6 @@ public class CreateResult {
     }
 
     public String toJson() {
-        return "{\"gameID\":\"" + gameID + "\"}";
+        return "{\"gameID\":" + gameID + "}";
     }
 }
