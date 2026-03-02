@@ -11,6 +11,7 @@ import result.*;
 
 import java.net.UnknownServiceException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 // This class will take RegisterRequest and call correct sequence of service class methods and return a Register Result
@@ -41,7 +42,7 @@ public class Service {
     }
 
     public LoginResult login(LoginRequest request) throws InvalidRequestException {
-        if (request.username == null || request.username.isEmpty()) {
+        if (request.username == null || request.password == null) {
             throw new InvalidRequestException(400, "Error: Username not provided correctly");
         }
         UserData user = userDAO.getUser(request.username); //TODO should just need to pass in username
@@ -61,7 +62,7 @@ public class Service {
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
-        AuthDAO.deleteAuth(authData.authToken); // Pass in auth token only
+        authDAO.deleteAuth(authData.authToken); // Pass in auth token only
         return new LogoutResult();
     }
 
@@ -70,32 +71,37 @@ public class Service {
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
-        ArrayList<GameData> gameList = gameDAO.getGames();
-        return new ListResult(gameList);
+        ArrayList<GameData> games = gameDAO.getGames();
+        return new ListResult(games);
     }
 
     public CreateResult create(CreateRequest request) throws InvalidRequestException {
+        if (request.authToken == null || request.gameName == null) {
+            throw new InvalidRequestException(400, "Error: authToken and gameName cannot be empty");
+        }
         AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        GameData gameData = new GameData(1234, "player1white", "player2black", request.gameName, board); // Needs gameid, whiteUsername, blackUsername, gameName, and ChessBoard object
-        return new CreateResult(gameData.gameID);
+        gameDAO.createGame(request.gameName);
+        GameData newGame = gameDAO.getGameByName(request.gameName);
+        return new CreateResult(newGame.gameID);
     }
 
     public JoinResult join(JoinRequest request) throws InvalidRequestException {
+        if (request.authToken == null || request.playerColor == null) {
+            throw new InvalidRequestException(400, "Error: AuthToken and PlayerColor and GameID cannot be empty");
+        }
         AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
-        GameData gameData = gameDAO.getGame(request.gameID); // arg should be gameID
+        GameData gameData = gameDAO.getGameByID(request.gameID); // arg should be gameID
         if (gameData == null) {
             throw new InvalidRequestException(400, "Error: Game not found");
         }
         if (request.playerColor.equals("WHITE")) {
-            if (gameData.whiteUsername != null) {
+            if (!gameData.whiteUsername.equals(request.authToken)) {
                 throw new InvalidRequestException(403, "Error: White team color already taken");
             }
         }
@@ -104,7 +110,7 @@ public class Service {
                 throw new InvalidRequestException(403, "Error: Black team color already taken");
             }
         }
-        gameDAO.joinGame(request.playerColor, request.gameID); // uses playerColor and gameID
+        gameDAO.userJoin(request.playerColor, request.gameID, authData.username); // uses playerColor and gameID
         return new JoinResult();
     }
 

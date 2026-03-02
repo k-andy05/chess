@@ -21,5 +21,7 @@ public class AuthDAO {
         return sessions.get(authToken);
     }
 
-    public static void deleteAuth(String authToken) {}
+    public void deleteAuth(String authToken) {
+        sessions.remove(authToken);
+    }
 }
