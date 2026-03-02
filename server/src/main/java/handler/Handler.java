@@ -39,7 +39,7 @@ public class Handler {
         ctx.result(result.toJson());
     }
 
-    public void logout(Context ctx) {
+    public void logout(Context ctx) throws InvalidRequestException {
         LogoutRequest request = new LogoutRequest(ctx);
         LogoutResult result = service.logout(request);
 //        Map<String, String> headerMap = ctx.headerMap();
@@ -48,7 +48,7 @@ public class Handler {
         ctx.json(result.toJson());
     }
 
-    public void list(Context ctx) {
+    public void list(Context ctx) throws InvalidRequestException {
         ListRequest request = new ListRequest(ctx);
         ListResult result = service.list(request);
 
@@ -56,7 +56,7 @@ public class Handler {
         ctx.json(result.toJson());
     }
 
-    public void create(Context ctx) {
+    public void create(Context ctx) throws InvalidRequestException {
         CreateRequest request = new CreateRequest(ctx);
         CreateResult result = service.create(request);
 
@@ -64,7 +64,7 @@ public class Handler {
         ctx.result(result.toJson());
     }
 
-    public void join(Context ctx) {
+    public void join(Context ctx) throws InvalidRequestException {
         JoinRequest request = new JoinRequest(ctx);
         JoinResult result = service.join(request);
 

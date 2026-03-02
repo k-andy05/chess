@@ -1,6 +1,7 @@
 package service;
 
 import chess.ChessBoard;
+import chess.InvalidMoveException;
 import exception.*;
 import model.*;
 import request.*;
@@ -25,10 +26,13 @@ public class Service {
         return new ClearResult();
     }
 
-    public RegisterResult register(RegisterRequest request) {
+    public RegisterResult register(RegisterRequest request) throws InvalidRequestException {
         UserData checkUser= userDAO.getUser(request.username);
         if (checkUser != null) {
             throw new InvalidRequestException(403, "Error: username already taken");
+        }
+        if (request.username == null || request.password == null) {
+            throw new InvalidRequestException(400, "Error: username or password not entered");
         }
         userDAO.createUser(request.username, request.password, request.email);
         String authToken = generateToken();
@@ -37,19 +41,22 @@ public class Service {
     }
 
     public LoginResult login(LoginRequest request) throws InvalidRequestException {
+        if (request.username == null || request.username.isEmpty()) {
+            throw new InvalidRequestException(400, "Error: Username not provided correctly");
+        }
         UserData user = userDAO.getUser(request.username); //TODO should just need to pass in username
         if (user == null) {
             throw new InvalidRequestException(401, "Error: Username not a registered user");
         }
         if (!user.password.equals(request.password)) {
-            throw new InvalidRequestException(400, "Error: Incorrect password");
+            throw new InvalidRequestException(401, "Error: Incorrect password");
         }
         String authToken = generateToken();
         authDAO.createAuth(authToken, request.username); // TODO, need username and way to generate auth token
         return new LoginResult(request.username, authToken); // TODO, need username and auth token to make LoginResult object
     }
 
-    public LogoutResult logout(LogoutRequest request) {
+    public LogoutResult logout(LogoutRequest request) throws InvalidRequestException {
         AuthData authData = authDAO.getAuth(request.authToken); // Just need to pass in authToken as arg
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
@@ -58,7 +65,7 @@ public class Service {
         return new LogoutResult();
     }
 
-    public ListResult list(ListRequest request) {
+    public ListResult list(ListRequest request) throws InvalidRequestException {
         AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
@@ -67,7 +74,7 @@ public class Service {
         return new ListResult(gameList);
     }
 
-    public CreateResult create(CreateRequest request) {
+    public CreateResult create(CreateRequest request) throws InvalidRequestException {
         AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
@@ -78,7 +85,7 @@ public class Service {
         return new CreateResult(gameData.gameID);
     }
 
-    public JoinResult join(JoinRequest request) {
+    public JoinResult join(JoinRequest request) throws InvalidRequestException {
         AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
