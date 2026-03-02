@@ -21,6 +21,23 @@ public class AuthDAO {
         return sessions.get(authToken);
     }
 
+    public AuthData getAuthByUsername(String username) {
+        for (AuthData session : sessions.values()) {
+            if (session.username.equals(username)) {
+                return session;
+            }
+        }
+        return null;
+    }
+
+    public void deleteUserSessions(String username) {
+        for (AuthData session : sessions.values()) {
+            if (session.username.equals(username)) {
+                sessions.remove(session);
+            }
+        }
+    }
+
     public void deleteAuth(String authToken) {
         sessions.remove(authToken);
     }

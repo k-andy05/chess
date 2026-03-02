@@ -1,7 +1,5 @@
 package service;
 
-import chess.ChessBoard;
-import chess.InvalidMoveException;
 import exception.*;
 import model.*;
 import request.*;
@@ -9,10 +7,7 @@ import result.ClearResult;
 import dataaccess.*;
 import result.*;
 
-import java.net.UnknownServiceException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
 import java.util.UUID;
 
 // This class will take RegisterRequest and call correct sequence of service class methods and return a Register Result
@@ -53,6 +48,8 @@ public class Service {
         if (!user.password.equals(request.password)) {
             throw new InvalidRequestException(401, "Error: Incorrect password");
         }
+//        AuthData LoginStatus = authDAO.getAuthByUsername(request.username);
+//        authDAO.deleteUserSessions(request.username);
         String authToken = generateToken();
         authDAO.createAuth(authToken, request.username); // TODO, need username and way to generate auth token
         return new LoginResult(request.username, authToken); // TODO, need username and auth token to make LoginResult object
@@ -64,6 +61,7 @@ public class Service {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
         authDAO.deleteAuth(authData.authToken); // Pass in auth token only
+//        authDAO.deleteUserSessions(authData.username);
         return new LogoutResult();
     }
 
@@ -90,13 +88,25 @@ public class Service {
     }
 
     public JoinResult join(JoinRequest request) throws InvalidRequestException {
-        Set<String> validColors = Set.of("WHITE", "BLACK");
-        if (!validColors.contains(request.playerColor)) {
-            throw new InvalidRequestException(400, "Error: Invalid team color");
+//        Integer gameIDnew = request.gameID;
+        if (request.gameID == null) {
+            throw new InvalidRequestException(400, "Error: GameID cannot be empty");
         }
-        if (request.authToken == null || request.playerColor == null) {
-            throw new InvalidRequestException(400, "Error: AuthToken and PlayerColor and GameID cannot be empty");
+        if (request.playerColor == null) {
+            throw new InvalidRequestException(400, "Error: playerColor cannot be empty");
         }
+        if (!request.playerColor.equals("WHITE")) {
+            if (!request.playerColor.equals("BLACK")) {
+                throw new InvalidRequestException(400, "Error: playerColor must be WHITE/BLACK");
+            }
+        }
+//        Set<String> validColors = Set.of("WHITE", "BLACK");
+//        if (!validColors.contains(request.playerColor)) {
+//            throw new InvalidRequestException(400, "Error: Invalid team color");
+//        }
+//        if (request.authToken == null || request.playerColor == null) {
+//            throw new InvalidRequestException(400, "Error: AuthToken and PlayerColor and GameID cannot be empty");
+//        }
         AuthData authData = authDAO.getAuth(request.authToken); // Just need auth token as arg (it is to validate logged in user)
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
