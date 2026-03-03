@@ -5,21 +5,21 @@ import java.util.HashMap;
 
 public class AuthDAO {
 
-    private static final HashMap<String, AuthData> sessions = new HashMap<>();
+    private static final HashMap<String, AuthData> SESSIONS = new HashMap<>();
 
     public void clearAllAuth() {
-        sessions.clear();
+        SESSIONS.clear();
     }
 
     public void createAuth(String authToken, String username) {
-        sessions.put(authToken, new AuthData(authToken, username));
+        SESSIONS.put(authToken, new AuthData(authToken, username));
     }
 
     public static AuthData getAuth(String authToken) {
-        return sessions.get(authToken);
+        return SESSIONS.get(authToken);
     }
 
     public void deleteAuth(String authToken) {
-        sessions.remove(authToken);
+        SESSIONS.remove(authToken);
     }
 }
