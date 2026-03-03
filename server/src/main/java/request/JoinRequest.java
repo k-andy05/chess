@@ -10,6 +10,9 @@ public class JoinRequest {
     public JoinRequest (Context ctx) {
         String body = ctx.body();
         this.authToken = ctx.header("authorization");
+        if (this.authToken != null && this.authToken.endsWith("\"")) {
+            this.authToken = this.authToken.substring(0, this.authToken.length() - 1);
+        }
         this.playerColor = extract(body, "playerColor");
         this.gameID = extractInt(body, "gameID");
     }
