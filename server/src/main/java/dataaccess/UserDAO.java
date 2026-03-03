@@ -17,4 +17,13 @@ public class UserDAO {
     public UserData getUser(String username) {
         return users.get(username);
     }
+
+    public UserData getUserByEmail(String email) {
+        for (UserData user : users.values()) {
+            if (user.email.equals(email)) {
+                return user;
+            }
+        }
+        return null;
+    }
 }

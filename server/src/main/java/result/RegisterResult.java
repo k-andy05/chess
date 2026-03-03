@@ -1,8 +1,8 @@
 package result;
 
 public class RegisterResult {
-    private String authToken;
-    private String username;
+    public String authToken;
+    public String username;
 
     public RegisterResult(String authToken, String username) {
         this.authToken = authToken;

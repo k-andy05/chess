@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 public class AuthDAO {
 
-    private  final HashMap<String, AuthData> sessions = new HashMap<>();
+    private static final HashMap<String, AuthData> sessions = new HashMap<>();
 
     public void clearAllAuth() {
         sessions.clear();
@@ -15,7 +15,7 @@ public class AuthDAO {
         sessions.put(authToken, new AuthData(authToken, username));
     }
 
-    public AuthData getAuth(String authToken) {
+    public static AuthData getAuth(String authToken) {
         return sessions.get(authToken);
     }
 

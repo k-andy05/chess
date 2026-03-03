@@ -1,8 +1,8 @@
 package result;
 
 public class LoginResult {
-    private String username;
-    private String authToken;
+    public String username;
+    public String authToken;
 
     public LoginResult (String username, String authToken) {
         this.username = username;

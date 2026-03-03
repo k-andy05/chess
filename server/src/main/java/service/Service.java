@@ -30,6 +30,10 @@ public class Service {
         if (request.username == null || request.password == null) {
             throw new InvalidRequestException(400, "Error: username or password not entered");
         }
+        UserData duplicateEmail = userDAO.getUserByEmail(request.email);
+        if (duplicateEmail != null) {
+            throw new InvalidRequestException(400, "Error: email already associated with an account");
+        }
         userDAO.createUser(request.username, request.password, request.email);
         String authToken = generateToken();
         authDAO.createAuth(authToken, request.username);

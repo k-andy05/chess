@@ -32,21 +32,24 @@ public class Handler {
     }
 
     public void logout(Context ctx) throws InvalidRequestException {
-        LogoutRequest request = new LogoutRequest(ctx);
+        String authToken = ctx.header("authorization");
+        LogoutRequest request = new LogoutRequest(authToken);
         LogoutResult result = service.logout(request);
         ctx.status(200);
         ctx.json(result.toJson());
     }
 
     public void list(Context ctx) throws InvalidRequestException {
-        ListRequest request = new ListRequest(ctx);
+        String authToken = ctx.header("authorization");
+        ListRequest request = new ListRequest(authToken);
         ListResult result = service.list(request);
         ctx.status(200);
         ctx.json(result.toJson());
     }
 
     public void create(Context ctx) throws InvalidRequestException {
-        CreateRequest request = new CreateRequest(ctx);
+        String authToken = ctx.header("authorization");
+        CreateRequest request = new CreateRequest(ctx.body(), authToken);
         CreateResult result = service.create(request);
         ctx.status(200);
         ctx.result(result.toJson());

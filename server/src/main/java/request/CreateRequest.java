@@ -6,9 +6,8 @@ public class CreateRequest {
     public String authToken;
     public String gameName;
 
-    public CreateRequest(Context ctx) {
-        String body = ctx.body();
-        this.authToken = ctx.header("authorization");
+    public CreateRequest(String body, String authToken) {
+        this.authToken = authToken;
         this.gameName = extract(body);
     }
 
