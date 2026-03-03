@@ -4,7 +4,6 @@ import exception.InvalidRequestException;
 import handler.*;
 import io.javalin.*;
 import com.google.gson.Gson;
-
 import java.util.Map;
 
 public class Server {
@@ -16,48 +15,31 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
-        // Register your endpoints and exception handlers here.
-
         // Clear endpoint
-        javalin.delete("/db", ctx -> { // If user sends a delete http request to the /db path, then take the Context object from the message which you can then use
-            handler.clear(ctx);
-        });
+        javalin.delete("/db", handler::clear);
 
         // Register endpoint
-        javalin.post("/user", ctx -> {
-            handler.register(ctx);
-            ctx.status(200);
-        });
+        javalin.post("/user", handler::register);
 
         // Login endpoint
-        javalin.post("/session", ctx -> {
-           handler.login(ctx);
-        });
+        javalin.post("/session", handler::login);
 
         // Logout endpoint
-        javalin.delete("/session", ctx -> {
-           handler.logout(ctx);
-        });
+        javalin.delete("/session", handler::logout);
 
         // List endpoint
-        javalin.get("/game", ctx -> {
-            handler.list(ctx);
-        });
+        javalin.get("/game", handler::list);
 
         // Create Game endpoint
-        javalin.post("/game", ctx -> {
-            handler.create(ctx);
-        });
+        javalin.post("/game", handler::create);
 
         // Join Game endpoint
-        javalin.put("/game", ctx -> {
-            handler.join(ctx);
-        });
+        javalin.put("/game", handler::join);
 
+        // Error Handling
         javalin.exception(InvalidRequestException.class, (e, ctx) -> {
             ctx.status(e.getStatusCode());
             String json = gson.toJson(Map.of("message", e.getMessage()));
-//            ctx.json(Map.of("message", e.getMessage()));
             ctx.result(json);
         });
     }

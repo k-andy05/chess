@@ -21,10 +21,8 @@ public class JoinRequest {
         String pattern = "\"" + key + "\":\"";
         int start = json.indexOf(pattern);
         if (start == -1) return null;
-
         start += pattern.length();
         int end = json.indexOf("\"", start);
-
         return json.substring(start, end);
     }
 
@@ -32,9 +30,7 @@ public class JoinRequest {
         String pattern = "\"" + key + "\":";
         int start = json.indexOf(pattern);
         if (start == -1) return null;
-
         start += pattern.length();
-
         int end = start;
         while (end < json.length() && Character.isDigit(json.charAt(end))) {
             end++;
