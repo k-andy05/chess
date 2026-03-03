@@ -82,6 +82,10 @@ public class Service {
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
+        GameData duplicateGameName = gameDAO.getGameByName(request.gameName);
+        if (duplicateGameName != null) {
+            throw new InvalidRequestException(401, "Error: Game name already taken");
+        }
         gameDAO.createGame(request.gameName);
         GameData newGame = gameDAO.getGameByName(request.gameName);
         return new CreateResult(newGame.gameID);

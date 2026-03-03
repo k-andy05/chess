@@ -1,7 +1,7 @@
 package result;
 
 public class CreateResult {
-    private int gameID;
+    public int gameID;
 
     public CreateResult(int gameID) {
         this.gameID = gameID;

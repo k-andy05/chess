@@ -56,7 +56,8 @@ public class Handler {
     }
 
     public void join(Context ctx) throws InvalidRequestException {
-        JoinRequest request = new JoinRequest(ctx);
+        String authToken = ctx.header("authorization");
+        JoinRequest request = new JoinRequest(authToken, ctx.body());
         JoinResult result = service.join(request);
         ctx.status(200);
         ctx.json(result.toJson());

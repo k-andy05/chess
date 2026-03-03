@@ -7,9 +7,8 @@ public class JoinRequest {
     public String playerColor; // Change to be custom variable WHITE or BLACK
     public Integer gameID;
 
-    public JoinRequest (Context ctx) {
-        String body = ctx.body();
-        this.authToken = ctx.header("authorization");
+    public JoinRequest (String authToken, String body) {
+        this.authToken = authToken;
         if (this.authToken != null && this.authToken.endsWith("\"")) {
             this.authToken = this.authToken.substring(0, this.authToken.length() - 1);
         }
