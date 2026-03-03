@@ -13,8 +13,8 @@ import java.util.Objects;
  */
 public class ChessGame {
 
-    ChessBoard currentBoard = new ChessBoard(); // Initialize starting chessboard
-    private TeamColor teamTurn = TeamColor.WHITE; // Initialize with white going first
+    ChessBoard currentBoard = new ChessBoard();
+    private TeamColor teamTurn = TeamColor.WHITE;
     public ChessGame() {
         currentBoard.resetBoard();
     }
@@ -64,34 +64,20 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
-
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece piece = currentBoard.getPiece(startPosition); // Get piece at starting Position
+        ChessPiece piece = currentBoard.getPiece(startPosition);
         if (piece == null) {
             return null;
         }
-        ChessPosition kingPosition = this.getKingPosition(piece.getTeamColor(), currentBoard); // King location
         Collection<ChessMove> pieceMoves = piece.pieceMoves(currentBoard, startPosition);
-        TeamColor oppositeTeam = null;
-        if (piece.getTeamColor() == TeamColor.BLACK) {
-            oppositeTeam = TeamColor.WHITE;
-        }
-        else {
-            oppositeTeam = TeamColor.BLACK;
-        }
-
-        // Check pieceMoves to see if each attackerList generated after a move puts the king's location in there
         Iterator<ChessMove> pieceMovesIterator = pieceMoves.iterator();
         while (pieceMovesIterator.hasNext()) {
             ChessMove move = pieceMovesIterator.next();
-            Collection<ChessMove> attackerMoves = new ArrayList<>();
-//            ChessGame copyGame = new ChessGame(); // New game
+            Collection<ChessMove> attackerMoves;
             ChessBoard copyBoard = this.deepCopy(currentBoard);
             if (!copyBoard.equals(currentBoard)) {
                 System.out.println("Boards not equal!");
             }
-//            copyGame.setBoard(copyBoard); // Set board to copy of original game's board
-            // Do the "move"
             copyBoard.addPiece(move.getEndPosition(), null);
             if (move.getPromotionPiece() == null) {
                 copyBoard.addPiece(move.getEndPosition(), piece);
@@ -100,7 +86,6 @@ public class ChessGame {
                 copyBoard.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
             }
             copyBoard.addPiece(move.getStartPosition(), null);
-            // Shouldn't attackerMoves arg 1 be the ooposite of piece??
             attackerMoves = this.getAttackerMoves(piece.getTeamColor(), copyBoard); // Generate updated attackerMove list
             ChessPosition newKingPosition = this.getKingPosition(piece.getTeamColor(), copyBoard);
             for (ChessMove attackerMove : attackerMoves) {
@@ -115,12 +100,10 @@ public class ChessGame {
 
     private ChessBoard deepCopy(ChessBoard original) {
         ChessBoard copy = new ChessBoard();
-
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row, col);
                 ChessPiece piece = original.getPiece(pos);
-                // If there is a piece, put it on the new board
                 if (piece != null) {
                     copy.addPiece(pos, piece);
                 }
@@ -187,14 +170,14 @@ public class ChessGame {
         if (piece == null || !validMoves.contains(move) || piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException();
         }
-        currentBoard.addPiece(end, null); // Make sure new spot is empty
+        currentBoard.addPiece(end, null);
         if (promotion == null) {
             currentBoard.addPiece(end, piece);
         }
         else {
-            currentBoard.addPiece(end, new ChessPiece(piece.getTeamColor(), promotion)); // Copy piece to new spot
+            currentBoard.addPiece(end, new ChessPiece(piece.getTeamColor(), promotion));
         }
-        currentBoard.addPiece(start, null); // Set old spot to empty
+        currentBoard.addPiece(start, null);
         if (teamTurn == TeamColor.BLACK) {
             teamTurn = TeamColor.WHITE;
         }
@@ -213,7 +196,6 @@ public class ChessGame {
         Collection<ChessMove> attackerMoves = this.getAttackerMoves(teamColor, currentBoard);
         Collection<ChessPosition> attackerEndPositions = this.getEndPositions(attackerMoves);
         ChessPosition kingPosition = this.getKingPosition(teamColor, currentBoard);
-
         return attackerEndPositions.contains(kingPosition);
     }
 
@@ -234,7 +216,6 @@ public class ChessGame {
                 for (int col = 1; col <= 8; col++) {
                     ChessPosition position = new ChessPosition(row, col);
                     ChessPiece piece = currentBoard.getPiece(position);
-
                     if (piece != null && piece.getTeamColor() == teamColor) {
                         if (!validMoves(position).isEmpty()) {
                             return false;
@@ -253,13 +234,13 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if (this.teamTurn == teamColor && !isInCheck(teamColor)) { // Check that it is our turn and we aren't in check
+        if (this.teamTurn == teamColor && !isInCheck(teamColor)) {
             for (int row = 1; row <= 8; row++) {
                 for (int col = 1; col <= 8; col++) {
                     ChessPosition position = new ChessPosition(row, col);
                     ChessPiece piece = currentBoard.getPiece(position);
-                    if (piece != null && piece.getTeamColor() == teamColor) { // Look at all our team's remaining pieces
-                        if (!validMoves(position).isEmpty()) { // If they also have zero valid moves...
+                    if (piece != null && piece.getTeamColor() == teamColor) {
+                        if (!validMoves(position).isEmpty()) {
                             return false;
                         }
                     }
@@ -269,13 +250,6 @@ public class ChessGame {
         }
         return false;
     }
-
-    /**
-     * Returns with current board's king spot of a team.
-     *
-     * @param teamColor the team who's king we're looking for
-     */
-
 
     /**
      * Returns with a list of end positions (ChessPosition).
@@ -296,7 +270,6 @@ public class ChessGame {
      *
      * @param board the new board to use
      */
-
     public void setBoard(ChessBoard board) {
         this.currentBoard = board;
     }
@@ -310,10 +283,4 @@ public class ChessGame {
         return this.currentBoard;
     }
 
-    /**
-     * Returns a list of moves where the attacker is one spot before hitting the king
-     *
-     * @param attackerMoves list of all possible attacker moves
-     * @param kingPosition ChessPosition of current team's king
-     */
 }

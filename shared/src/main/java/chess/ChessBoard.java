@@ -1,4 +1,4 @@
-package chess; // This tells the compiler that this file belongs to a folder named chess
+package chess;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -9,10 +9,10 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard { // Chessboard class that is in charge of adding pieces, getting a chess piece, and resetting the board
+public class ChessBoard {
 
-    ChessPiece[][] squares = new ChessPiece[8][8]; // a new ChessPiece class object called squares is created with a 8x8 grid size
-    public ChessBoard() { // The constructor that is run when I type new ChessBoard()
+    ChessPiece[][] squares = new ChessPiece[8][8];
+    public ChessBoard() {
         
     }
 
@@ -22,7 +22,7 @@ public class ChessBoard { // Chessboard class that is in charge of adding pieces
      * @param position where to add the piece to
      * @param piece    the piece to add
      */
-    public void addPiece(ChessPosition position, ChessPiece piece) { // method that takes a position and piece and puts them on the ChessBoard
+    public void addPiece(ChessPosition position, ChessPiece piece) {
         squares[position.getRow()-1][position.getColumn()-1] = piece;
     }
 
