@@ -40,7 +40,7 @@ public class Service {
         if (request.username == null || request.password == null) {
             throw new InvalidRequestException(400, "Error: Username not provided correctly");
         }
-        UserData user = userDAO.getUser(request.username); //TODO should just need to pass in username
+        UserData user = userDAO.getUser(request.username);
         if (user == null) {
             throw new InvalidRequestException(401, "Error: Username not a registered user");
         }
