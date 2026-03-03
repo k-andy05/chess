@@ -2,15 +2,12 @@ package dataaccess;
 
 import chess.ChessBoard;
 import model.GameData;
-import model.UserData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 public class GameDAO {
     private final HashMap<String, GameData> games = new HashMap<>();
-//    private final ArrayList<GameData> games = new ArrayList<>();
     private int nextGameNumber = 1;
 
     public void clearAllGame() {

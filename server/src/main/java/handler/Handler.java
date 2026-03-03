@@ -7,10 +7,6 @@ import service.*;
 import result.*;
 import request.*;
 
-import java.util.Map;
-
-// This class will take json from server, direct it to correct service class, and format args as a Request class object
-// it will also receive different result objects and pass on that data to the server
 public class Handler {
 
     private final Service service = new Service();
@@ -22,19 +18,15 @@ public class Handler {
     }
 
     public void register(Context ctx) throws InvalidRequestException {
-        // TODO add exception handling later to allow for 200/403/400/500 errors
         RegisterRequest request = new RegisterRequest(ctx.body());
         RegisterResult result = service.register(request);
-
         ctx.status(200);
         ctx.result(result.toJson());
-//        ctx.contentType("application/json");
     }
 
     public void login(Context ctx) throws InvalidRequestException {
         LoginRequest request = new LoginRequest(ctx.body());
         LoginResult result = service.login(request);
-
         ctx.status(200);
         ctx.result(result.toJson());
     }
@@ -42,8 +34,6 @@ public class Handler {
     public void logout(Context ctx) throws InvalidRequestException {
         LogoutRequest request = new LogoutRequest(ctx);
         LogoutResult result = service.logout(request);
-//        Map<String, String> headerMap = ctx.headerMap();
-//        System.out.println(headerMap);
         ctx.status(200);
         ctx.json(result.toJson());
     }
@@ -51,7 +41,6 @@ public class Handler {
     public void list(Context ctx) throws InvalidRequestException {
         ListRequest request = new ListRequest(ctx);
         ListResult result = service.list(request);
-
         ctx.status(200);
         ctx.json(result.toJson());
     }
@@ -59,7 +48,6 @@ public class Handler {
     public void create(Context ctx) throws InvalidRequestException {
         CreateRequest request = new CreateRequest(ctx);
         CreateResult result = service.create(request);
-
         ctx.status(200);
         ctx.result(result.toJson());
     }
@@ -67,7 +55,6 @@ public class Handler {
     public void join(Context ctx) throws InvalidRequestException {
         JoinRequest request = new JoinRequest(ctx);
         JoinResult result = service.join(request);
-
         ctx.status(200);
         ctx.json(result.toJson());
     }

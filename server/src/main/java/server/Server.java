@@ -1,7 +1,6 @@
 package server;
 
 import exception.InvalidRequestException;
-import exception.UserNotFoundException;
 import handler.*;
 import io.javalin.*;
 import com.google.gson.Gson;

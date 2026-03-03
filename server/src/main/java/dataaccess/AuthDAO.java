@@ -1,8 +1,6 @@
 package dataaccess;
 
 import model.AuthData;
-import model.GameData;
-
 import java.util.HashMap;
 
 public class AuthDAO {
@@ -19,23 +17,6 @@ public class AuthDAO {
 
     public AuthData getAuth(String authToken) {
         return sessions.get(authToken);
-    }
-
-    public AuthData getAuthByUsername(String username) {
-        for (AuthData session : sessions.values()) {
-            if (session.username.equals(username)) {
-                return session;
-            }
-        }
-        return null;
-    }
-
-    public void deleteUserSessions(String username) {
-        for (AuthData session : sessions.values()) {
-            if (session.username.equals(username)) {
-                sessions.remove(session);
-            }
-        }
     }
 
     public void deleteAuth(String authToken) {
