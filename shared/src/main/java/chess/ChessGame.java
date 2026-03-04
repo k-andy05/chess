@@ -205,6 +205,7 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
+
     public boolean isInCheckmate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
             return false;
@@ -212,41 +213,12 @@ public class ChessGame {
         if (teamTurn != teamColor) {
             return false;
         }
-            for (int row=1; row<=8; row++) {
-                for (int col = 1; col <= 8; col++) {
-                    ChessPosition position = new ChessPosition(row, col);
-                    ChessPiece piece = currentBoard.getPiece(position);
-                    if (piece != null && piece.getTeamColor() == teamColor) {
-                        if (!validMoves(position).isEmpty()) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        return true;
+        return !hasAnyValidMoves(teamColor);
     }
 
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves while not in check.
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
     public boolean isInStalemate(TeamColor teamColor) {
         if (this.teamTurn == teamColor && !isInCheck(teamColor)) {
-            for (int row = 1; row <= 8; row++) {
-                for (int col = 1; col <= 8; col++) {
-                    ChessPosition position = new ChessPosition(row, col);
-                    ChessPiece piece = currentBoard.getPiece(position);
-                    if (piece != null && piece.getTeamColor() == teamColor) {
-                        if (!validMoves(position).isEmpty()) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
+            return !hasAnyValidMoves(teamColor);
         }
         return false;
     }
@@ -263,6 +235,21 @@ public class ChessGame {
             endPositions.add(move.getEndPosition());
         }
         return endPositions;
+    }
+
+    private boolean hasAnyValidMoves(TeamColor teamColor) {
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = currentBoard.getPiece(position);
+
+                // Combining these conditions reduces the nesting depth
+                if (piece != null && piece.getTeamColor() == teamColor && !validMoves(position).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

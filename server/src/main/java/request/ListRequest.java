@@ -1,7 +1,5 @@
 package request;
 
-import io.javalin.http.Context;
-
 public class ListRequest {
     public String authToken;
 
