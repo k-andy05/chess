@@ -1,4 +1,4 @@
-package server;
+package service;
 
 import org.junit.jupiter.api.*;
 import service.Service;
