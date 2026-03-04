@@ -91,35 +91,6 @@ public class ChessPiece {
             for (int[] move : kingMoves) {
                 calculateStepMoves(board, myPosition, possibleMoves, move[0], move[1]);
             }
-
-            // Castling
-            ChessPiece king = board.getPiece(myPosition);
-            if (king.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                ChessPiece uno = board.getPiece(new ChessPosition(1, 1));
-                ChessPiece dos = board.getPiece(new ChessPosition(1, 2));
-                ChessPiece tres = board.getPiece(new ChessPosition(1, 3));
-                ChessPiece cuatro = board.getPiece(new ChessPosition(1, 4));
-                ChessPiece cinco = board.getPiece(new ChessPosition(1, 5));
-                ChessPiece seis = board.getPiece(new ChessPosition(1, 6));
-                ChessPiece siete = board.getPiece(new ChessPosition(1, 7));
-                ChessPiece ocho = board.getPiece(new ChessPosition(1, 8));
-
-                // Check left of king
-                if (uno != null && uno.getPieceType() == PieceType.ROOK && dos != null
-                        && tres == null && cuatro == null && cinco != null
-                        && cinco.getPieceType() == PieceType.KING) {
-                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(1, 3), null)); // king
-                    possibleMoves.add(new ChessMove(new ChessPosition(1, 1), new ChessPosition(1, 4), null)); // rook
-                }
-
-                // Check right of king
-                if (ocho != null && ocho.getPieceType() == PieceType.ROOK && siete == null
-                        && seis == null && cinco != null
-                        && cinco.getPieceType() == PieceType.KING) {
-                    possibleMoves.add(new ChessMove(new ChessPosition(startingY, startingX), new ChessPosition(1, 3), null));
-                    possibleMoves.add(new ChessMove(new ChessPosition(1, 1), new ChessPosition(1, 4), null));
-                }
-            }
         }
 
         else if (piece.getPieceType() == PieceType.ROOK) {
@@ -158,7 +129,8 @@ public class ChessPiece {
 
         return possibleMoves;
     }
-    private void calculateSlidingMoves(ChessBoard board, ChessPosition myPosition, List<ChessMove> possibleMoves, int rowDirection, int colDirection) {
+    private void calculateSlidingMoves(ChessBoard board, ChessPosition myPosition, List<ChessMove> possibleMoves,
+                                       int rowDirection, int colDirection) {
         int currentRow = myPosition.getRow() + rowDirection;
         int currentCol = myPosition.getColumn() + colDirection;
 
@@ -178,7 +150,8 @@ public class ChessPiece {
             }
         }
     }
-    private void calculateStepMoves(ChessBoard board, ChessPosition myPosition, List<ChessMove> possibleMoves, int rowOffset, int colOffset) {
+    private void calculateStepMoves(ChessBoard board, ChessPosition myPosition, List<ChessMove> possibleMoves,
+                                    int rowOffset, int colOffset) {
         int newRow = myPosition.getRow() + rowOffset;
         int newCol = myPosition.getColumn() + colOffset;
 
