@@ -2,6 +2,7 @@ package dataaccess;
 
 import java.sql.*;
 import java.util.Properties;
+import exception.*;
 
 public class DatabaseManager {
     private static String databaseName;
@@ -25,7 +26,8 @@ public class DatabaseManager {
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to create database", ex);
+//            throw new DataAccessException("failed to create database", ex);
+            throw new DataAccessException(ex.getMessage(), "failed to create database");
         }
     }
 
@@ -48,7 +50,8 @@ public class DatabaseManager {
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {
-            throw new DataAccessException("failed to get connection", ex);
+//            throw new DataAccessException("failed to get connection", ex.getMessage());
+            throw new DataAccessException(ex.getMessage(), "failed to get connection");
         }
     }
 
@@ -61,7 +64,8 @@ public class DatabaseManager {
             props.load(propStream);
             loadProperties(props);
         } catch (Exception ex) {
-            throw new RuntimeException("unable to process db.properties", ex);
+//            throw new RuntimeException("unable to process db.properties", ex);
+            throw new DataAccessException(ex.getMessage(), "unable to process db.properties");
         }
     }
 
