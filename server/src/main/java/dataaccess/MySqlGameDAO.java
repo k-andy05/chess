@@ -1,6 +1,6 @@
 package dataaccess;
 
-import chess.ChessBoard;
+import chess.ChessGame;
 import exception.DataAccessException;
 import model.GameData;
 
@@ -13,7 +13,7 @@ public class MySqlGameDAO implements GameDAO {
     public MySqlGameDAO () { configureTable(); }
 
     private void configureTable() throws DataAccessException {
-        // TODO may need to do something to game column type or serializing it or something
+        String dropStatement = "DROP TABLE IF EXISTS gamedata";
         String statement = """
                 CREATE TABLE IF NOT EXISTS gamedata (
                     gameID INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,7 +24,9 @@ public class MySqlGameDAO implements GameDAO {
                 );
                 """;
         try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
              PreparedStatement ps = conn.prepareStatement(statement)) {
+            dropPs.executeUpdate();
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
@@ -50,12 +52,14 @@ public class MySqlGameDAO implements GameDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 ArrayList<GameData> games = new ArrayList<>();
                 while (rs.next()) {
+                    Gson gson = new Gson();
+                    ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
                     GameData game = new GameData(
                             rs.getInt("gameID"),
                             rs.getString("whiteUsername"),
                             rs.getString("blackUsername"),
                             rs.getString("gameName"),
-                            new ChessBoard()
+                            chessGame.getBoard()
                     );
                     games.add(game);
                 }
@@ -93,7 +97,9 @@ public class MySqlGameDAO implements GameDAO {
             ps.setString(1, gameName);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), new ChessBoard());
+                    Gson gson = new Gson();
+                    ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
+                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), chessGame.getBoard());
                 }
             }
         } catch (SQLException e) {
@@ -111,7 +117,9 @@ public class MySqlGameDAO implements GameDAO {
             ps.setInt(1, gameID);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), new ChessBoard());
+                    Gson gson = new Gson();
+                    ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
+                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), chessGame.getBoard());
                 }
             }
         } catch (SQLException e) {
@@ -122,10 +130,18 @@ public class MySqlGameDAO implements GameDAO {
 
     @Override
     public void createGame(String gameName) throws DataAccessException {
-        String statement = "INSERT INTO gamedata (gameName) VALUES (?)";
+        String statement = "INSERT INTO gamedata (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(statement)) {
-            ps.setString(1, gameName);
+            ChessGame game = new ChessGame();
+            game.getBoard().resetBoard();
+            Gson gson = new Gson();
+            String gameJson = gson.toJson(game);
+
+            ps.setString(1, null);
+            ps.setString(2, null);
+            ps.setString(3, gameName);
+            ps.setString(4, gameJson);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

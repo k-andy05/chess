@@ -12,6 +12,7 @@ public class MySqlAuthDAO implements AuthDAO {
     }
 
     private void configureTable() throws DataAccessException {
+        String dropStatement = "DROP TABLE IF EXISTS userdata";
         String statement = """
                 CREATE TABLE IF NOT EXISTS authdata (
                     authToken VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -19,7 +20,9 @@ public class MySqlAuthDAO implements AuthDAO {
                 );
                 """;
         try (Connection conn = DatabaseManager.getConnection();
-        PreparedStatement ps = conn.prepareStatement(statement)) {
+             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
+             PreparedStatement ps = conn.prepareStatement(statement)) {
+            dropPs.executeUpdate();
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
