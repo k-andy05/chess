@@ -11,9 +11,9 @@ import java.util.UUID;
 
 
 public class Service {
-    private final AuthDAO authDAO = new AuthDAO();
-    private final UserDAO userDAO = new UserDAO();
-    private final GameDAO gameDAO = new GameDAO();
+    private final MySqlAuthDAO authDAO = new MySqlAuthDAO();
+    private final MySqlUserDAO userDAO = new MySqlUserDAO();
+    private final MySqlGameDAO gameDAO = new MySqlGameDAO();
 
     public ClearResult clear () {
         authDAO.clearAllAuth();

@@ -1,25 +1,17 @@
 package dataaccess;
 
-import model.AuthData;
-import java.util.HashMap;
+import exception.DataAccessException;
+import model.*;
 
-public class AuthDAO {
+import java.util.ArrayList;
 
-    private static final HashMap<String, AuthData> SESSIONS = new HashMap<>();
+public interface AuthDAO {
+    void clearAllAuth() throws DataAccessException;
 
-    public void clearAllAuth() {
-        SESSIONS.clear();
-    }
+    void createAuth(String authToken, String username) throws DataAccessException;
 
-    public void createAuth(String authToken, String username) {
-        SESSIONS.put(authToken, new AuthData(authToken, username));
-    }
+    AuthData getAuth(String authToken) throws DataAccessException;
 
-    public static AuthData getAuth(String authToken) {
-        return SESSIONS.get(authToken);
-    }
-
-    public void deleteAuth(String authToken) {
-        SESSIONS.remove(authToken);
-    }
+    void deleteAuth(String authToken) throws DataAccessException;
 }
+

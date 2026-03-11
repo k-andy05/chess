@@ -1,5 +1,8 @@
 package server;
 
+import dataaccess.DataAccess;
+import dataaccess.DatabaseManager;
+import exception.DataAccessException;
 import exception.InvalidRequestException;
 import handler.*;
 import io.javalin.*;
@@ -45,6 +48,11 @@ public class Server {
     }
 
     public int run(int desiredPort) {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            System.err.println("Failed to initialize database: " + e.getMessage());
+        }
         javalin.start(desiredPort);
         return javalin.port();
     }

@@ -1,29 +1,18 @@
 package dataaccess;
 
-import model.UserData;
-import java.util.HashMap;
+import exception.DataAccessException;
+import model.*;
 
-public class UserDAO {
-    private final HashMap<String, UserData> users = new HashMap<>();
+import java.util.ArrayList;
 
-    public void clearAllUser() {
-        users.clear();
-    }
+public interface UserDAO {
 
-    public void createUser(String username, String password, String email) {
-        users.put(username, new UserData(username, password, email));
-    }
+    void clearAllUser() throws DataAccessException;
 
-    public UserData getUser(String username) {
-        return users.get(username);
-    }
+    void createUser(String username, String password, String email) throws DataAccessException;
 
-    public UserData getUserByEmail(String email) {
-        for (UserData user : users.values()) {
-            if (user.email.equals(email)) {
-                return user;
-            }
-        }
-        return null;
-    }
+    UserData getUser(String username) throws DataAccessException;
+
+    UserData getUserByEmail(String email) throws DataAccessException;
 }
+

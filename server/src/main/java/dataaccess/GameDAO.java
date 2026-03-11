@@ -1,51 +1,22 @@
 package dataaccess;
 
-import chess.ChessBoard;
-import model.GameData;
+import exception.DataAccessException;
+import model.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-public class GameDAO {
-    private final HashMap<String, GameData> games = new HashMap<>();
-    private int nextGameNumber = 1;
+public interface GameDAO {
 
-    public void clearAllGame() {
-        games.clear();
-    }
+    void clearAllGame() throws DataAccessException;
 
-    public ArrayList<GameData> getGames() {
-        return new ArrayList<>(games.values());
-    }
+    ArrayList<GameData> getGames() throws DataAccessException;
 
-    public void userJoin(String playerColor, int gameID, String username) {
-        GameData desiredGame = this.getGameByID(gameID);
-        if (playerColor.equals("WHITE")) {
-            desiredGame.whiteUsername = username;
-        }
-        else {
-            desiredGame.blackUsername = username;
-        }
-    }
+    void userJoin(String playerColor, int GameID, String username) throws DataAccessException;
 
-    public GameData getGameByName(String gameName) {
-        return games.get(gameName);
-    }
+    GameData getGameByName(String gameName) throws DataAccessException;
 
-    public GameData getGameByID(Integer gameID) {
-        for (GameData game : games.values()) {
-            if (game.gameID == gameID) {
-                return game;
-            }
-        }
-        return null;
-    }
+    GameData getGameByID(Integer gameID) throws DataAccessException;
 
-    public void createGame(String gameName) {
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        GameData newGame = new GameData(nextGameNumber, null, null, gameName, board);
-        nextGameNumber++;
-        games.put(gameName, newGame);
-    }
+    void createGame(String gameName) throws DataAccessException;
 }
+

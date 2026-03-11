@@ -55,6 +55,7 @@ public class DatabaseManager {
         }
     }
 
+    // calls loadProperties method and creates props object for it to use as arg
     private static void loadPropertiesFromResources() {
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
             if (propStream == null) {
@@ -69,6 +70,7 @@ public class DatabaseManager {
         }
     }
 
+    // takes Properties object from db.properties and sets DatabaseManager object variables
     private static void loadProperties(Properties props) {
         databaseName = props.getProperty("db.name");
         dbUsername = props.getProperty("db.user");
