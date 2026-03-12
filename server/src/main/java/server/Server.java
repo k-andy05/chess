@@ -11,10 +11,16 @@ import java.util.Map;
 public class Server {
 
     private final Javalin javalin;
-    private final Handler handler = new Handler();
+    private final Handler handler;
     private final Gson gson = new Gson();
 
     public Server() {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            System.err.println("Failed to initialize database: " + e.getMessage());
+        }
+        handler = new Handler();
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
 
         // Clear endpoint
@@ -53,11 +59,6 @@ public class Server {
     }
 
     public int run(int desiredPort) {
-        try {
-            DatabaseManager.createDatabase();
-        } catch (DataAccessException e) {
-            System.err.println("Failed to initialize database: " + e.getMessage());
-        }
         javalin.start(desiredPort);
         return javalin.port();
     }
