@@ -10,14 +10,17 @@ public class MemoryGameDAO implements GameDAO {
     private final HashMap<String, GameData> games = new HashMap<>();
     private int nextGameNumber = 1;
 
+    @Override
     public void clearAllGame() {
         games.clear();
     }
 
+    @Override
     public ArrayList<GameData> getGames() {
         return new ArrayList<>(games.values());
     }
 
+    @Override
     public void userJoin(String playerColor, int gameID, String username) {
         GameData desiredGame = this.getGameByID(gameID);
         if (playerColor.equals("WHITE")) {
@@ -28,10 +31,12 @@ public class MemoryGameDAO implements GameDAO {
         }
     }
 
+    @Override
     public GameData getGameByName(String gameName) {
         return games.get(gameName);
     }
 
+    @Override
     public GameData getGameByID(Integer gameID) {
         for (GameData game : games.values()) {
             if (game.gameID == gameID) {
@@ -41,6 +46,7 @@ public class MemoryGameDAO implements GameDAO {
         return null;
     }
 
+    @Override
     public void createGame(String gameName) {
         ChessBoard board = new ChessBoard();
         board.resetBoard();
