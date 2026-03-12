@@ -2,6 +2,7 @@ package service;
 
 import exception.*;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 import request.*;
 import result.ClearResult;
 import dataaccess.*;
@@ -48,7 +49,8 @@ public class Service {
         if (user == null) {
             throw new InvalidRequestException(401, "Error: Username not a registered user");
         }
-        if (!user.password.equals(request.password)) {
+//        if (!user.password.equals(request.password)) {
+        if (!BCrypt.checkpw(request.password, user.password)) {
             throw new InvalidRequestException(401, "Error: Incorrect password");
         }
         String authToken = generateToken();

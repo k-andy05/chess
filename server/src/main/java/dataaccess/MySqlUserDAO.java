@@ -2,6 +2,7 @@ package dataaccess;
 
 import exception.DataAccessException;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
@@ -12,7 +13,7 @@ public class MySqlUserDAO implements UserDAO {
     }
 
     private void configureTable() {
-        String dropStatement = "DROP TABLE IF EXISTS userdata";
+//        String dropStatement = "DROP TABLE IF EXISTS userdata";
         String statement = """
             CREATE TABLE IF NOT EXISTS userdata (
                 username VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -21,12 +22,12 @@ public class MySqlUserDAO implements UserDAO {
             );
             """;
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
+//             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
              PreparedStatement ps = conn.prepareStatement(statement)) {
-            dropPs.executeUpdate();
+//            dropPs.executeUpdate();
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to initialize userdata table");
         }
     }
 
@@ -37,7 +38,7 @@ public class MySqlUserDAO implements UserDAO {
              PreparedStatement ps = conn.prepareStatement(statement)) {
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to clear userdata table");
         }
     }
 
@@ -47,11 +48,12 @@ public class MySqlUserDAO implements UserDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(statement)) {
             ps.setString(1, username);
-            ps.setString(2, password);
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+            ps.setString(2, hashedPassword);
             ps.setString(3, email);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to add new input into userdata");
         }
     }
 
@@ -67,7 +69,7 @@ public class MySqlUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to get user data by username");
         }
         return null;
     }
@@ -84,7 +86,7 @@ public class MySqlUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to get user data by email");
         }
         return null;
     }

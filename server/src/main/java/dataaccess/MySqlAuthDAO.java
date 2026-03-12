@@ -12,7 +12,7 @@ public class MySqlAuthDAO implements AuthDAO {
     }
 
     private void configureTable() throws DataAccessException {
-        String dropStatement = "DROP TABLE IF EXISTS userdata";
+//        String dropStatement = "DROP TABLE IF EXISTS userdata";
         String statement = """
                 CREATE TABLE IF NOT EXISTS authdata (
                     authToken VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -20,12 +20,12 @@ public class MySqlAuthDAO implements AuthDAO {
                 );
                 """;
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
+//             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
              PreparedStatement ps = conn.prepareStatement(statement)) {
-            dropPs.executeUpdate();
+//            dropPs.executeUpdate();
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to initialize userdata table");
         }
     }
 
@@ -36,7 +36,7 @@ public class MySqlAuthDAO implements AuthDAO {
         PreparedStatement ps = conn.prepareStatement(statement)) {
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to clear data from authdata table");
         }
     }
 
@@ -49,7 +49,7 @@ public class MySqlAuthDAO implements AuthDAO {
             ps.setString(2, username);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to create authdata entry");
         }
     }
 
@@ -65,7 +65,7 @@ public class MySqlAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to get auth data by authToken");
         }
         return null;
     }
@@ -78,7 +78,7 @@ public class MySqlAuthDAO implements AuthDAO {
             ps.setString(1, authToken);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to delete auth data entry");
         }
     }
 

@@ -45,6 +45,12 @@ public class Server {
             String json = gson.toJson(Map.of("message", e.getMessage()));
             ctx.result(json);
         });
+
+        javalin.exception(DataAccessException.class, (e, ctx) -> {
+           ctx.status(500);
+           String json = gson.toJson(Map.of("message", "Error:" + e.getMessage()));
+           ctx.result(json);
+        });
     }
 
     public int run(int desiredPort) {

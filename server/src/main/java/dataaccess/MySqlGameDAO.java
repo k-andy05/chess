@@ -13,7 +13,7 @@ public class MySqlGameDAO implements GameDAO {
     public MySqlGameDAO () { configureTable(); }
 
     private void configureTable() throws DataAccessException {
-        String dropStatement = "DROP TABLE IF EXISTS gamedata";
+//        String dropStatement = "DROP TABLE IF EXISTS gamedata";
         String statement = """
                 CREATE TABLE IF NOT EXISTS gamedata (
                     gameID INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,12 +24,12 @@ public class MySqlGameDAO implements GameDAO {
                 );
                 """;
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
+//             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
              PreparedStatement ps = conn.prepareStatement(statement)) {
-            dropPs.executeUpdate();
+//            dropPs.executeUpdate();
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to initialize gamedata table");
         }
     }
 
@@ -40,7 +40,7 @@ public class MySqlGameDAO implements GameDAO {
              PreparedStatement ps = conn.prepareStatement(statement)) {
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to clear gamedata table");
         }
     }
 
@@ -66,7 +66,7 @@ public class MySqlGameDAO implements GameDAO {
                 return games;
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to get list of all gamedata entries");
         }
     }
 
@@ -84,11 +84,10 @@ public class MySqlGameDAO implements GameDAO {
             ps.setInt(2, GameID);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to join user to game in gamedata table");
         }
     }
 
-    //TODO fix GameData return to return GameData object
     @Override
     public GameData getGameByName(String gameName) throws DataAccessException {
         String statement = "SELECT * FROM gamedata WHERE gameName = ?";
@@ -103,12 +102,11 @@ public class MySqlGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to get game data by gameName");
         }
         return null;
     }
 
-    //TODO same error as above return statement
     @Override
     public GameData getGameByID(Integer gameID) throws DataAccessException {
         String statement = "SELECT * FROM gamedata WHERE gameID = ?";
@@ -123,7 +121,7 @@ public class MySqlGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to get game data by gameID");
         }
         return null;
     }
@@ -144,7 +142,7 @@ public class MySqlGameDAO implements GameDAO {
             ps.setString(4, gameJson);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error: failed to create new game entry in gamedata");
         }
     }
 }
