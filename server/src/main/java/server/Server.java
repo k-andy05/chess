@@ -1,6 +1,5 @@
 package server;
 
-import dataaccess.DataAccess;
 import dataaccess.DatabaseManager;
 import exception.DataAccessException;
 import exception.InvalidRequestException;

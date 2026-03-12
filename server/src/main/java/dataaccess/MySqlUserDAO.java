@@ -13,7 +13,6 @@ public class MySqlUserDAO implements UserDAO {
     }
 
     private void configureTable() {
-//        String dropStatement = "DROP TABLE IF EXISTS userdata";
         String statement = """
             CREATE TABLE IF NOT EXISTS userdata (
                 username VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -22,9 +21,7 @@ public class MySqlUserDAO implements UserDAO {
             );
             """;
         try (Connection conn = DatabaseManager.getConnection();
-//             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
              PreparedStatement ps = conn.prepareStatement(statement)) {
-//            dropPs.executeUpdate();
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Error: failed to initialize userdata table");
@@ -65,7 +62,10 @@ public class MySqlUserDAO implements UserDAO {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
+                    return new UserData(
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("email"));
                 }
             }
         } catch (SQLException e) {
@@ -82,7 +82,10 @@ public class MySqlUserDAO implements UserDAO {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
+                    return new UserData(
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("email"));
                 }
             }
         } catch (SQLException e) {

@@ -3,8 +3,6 @@ package dataaccess;
 import exception.DataAccessException;
 import model.*;
 
-import java.util.ArrayList;
-
 public interface UserDAO {
 
     void clearAllUser() throws DataAccessException;

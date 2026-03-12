@@ -13,7 +13,6 @@ public class MySqlGameDAO implements GameDAO {
     public MySqlGameDAO () { configureTable(); }
 
     private void configureTable() throws DataAccessException {
-//        String dropStatement = "DROP TABLE IF EXISTS gamedata";
         String statement = """
                 CREATE TABLE IF NOT EXISTS gamedata (
                     gameID INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,9 +23,7 @@ public class MySqlGameDAO implements GameDAO {
                 );
                 """;
         try (Connection conn = DatabaseManager.getConnection();
-//             PreparedStatement dropPs = conn.prepareStatement(dropStatement);
              PreparedStatement ps = conn.prepareStatement(statement)) {
-//            dropPs.executeUpdate();
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Error: failed to initialize gamedata table");
@@ -98,7 +95,12 @@ public class MySqlGameDAO implements GameDAO {
                 if (rs.next()) {
                     Gson gson = new Gson();
                     ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
-                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), chessGame.getBoard());
+                    return new GameData(
+                            rs.getInt("gameID"),
+                            rs.getString("whiteUsername"),
+                            rs.getString("blackUsername"),
+                            rs.getString("gameName"),
+                            chessGame.getBoard());
                 }
             }
         } catch (SQLException e) {
@@ -117,7 +119,12 @@ public class MySqlGameDAO implements GameDAO {
                 if (rs.next()) {
                     Gson gson = new Gson();
                     ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
-                    return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"), rs.getString("blackUsername"), rs.getString("gameName"), chessGame.getBoard());
+                    return new GameData(
+                            rs.getInt("gameID"),
+                            rs.getString("whiteUsername"),
+                            rs.getString("blackUsername"),
+                            rs.getString("gameName"),
+                            chessGame.getBoard());
                 }
             }
         } catch (SQLException e) {
@@ -135,7 +142,6 @@ public class MySqlGameDAO implements GameDAO {
             game.getBoard().resetBoard();
             Gson gson = new Gson();
             String gameJson = gson.toJson(game);
-
             ps.setString(1, null);
             ps.setString(2, null);
             ps.setString(3, gameName);

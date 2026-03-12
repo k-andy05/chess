@@ -26,7 +26,6 @@ public class DatabaseManager {
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
-//            throw new DataAccessException("failed to create database", ex);
             throw new DataAccessException(ex.getMessage(), "failed to create database");
         }
     }
@@ -50,12 +49,10 @@ public class DatabaseManager {
             conn.setCatalog(databaseName);
             return conn;
         } catch (SQLException ex) {
-//            throw new DataAccessException("failed to get connection", ex.getMessage());
             throw new DataAccessException(ex.getMessage(), "failed to get connection");
         }
     }
 
-    // calls loadProperties method and creates props object for it to use as arg
     private static void loadPropertiesFromResources() {
         try (var propStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("db.properties")) {
             if (propStream == null) {
@@ -65,12 +62,10 @@ public class DatabaseManager {
             props.load(propStream);
             loadProperties(props);
         } catch (Exception ex) {
-//            throw new RuntimeException("unable to process db.properties", ex);
             throw new DataAccessException(ex.getMessage(), "unable to process db.properties");
         }
     }
 
-    // takes Properties object from db.properties and sets DatabaseManager object variables
     private static void loadProperties(Properties props) {
         databaseName = props.getProperty("db.name");
         dbUsername = props.getProperty("db.user");
