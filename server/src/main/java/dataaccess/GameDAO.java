@@ -11,7 +11,7 @@ public interface GameDAO {
 
     ArrayList<GameData> getGames() throws DataAccessException;
 
-    void userJoin(String playerColor, int GameID, String username) throws DataAccessException;
+    void userJoin(String playerColor, int gameID, String username) throws DataAccessException;
 
     GameData getGameByName(String gameName) throws DataAccessException;
 
