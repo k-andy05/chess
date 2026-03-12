@@ -49,16 +49,7 @@ public class MySqlGameDAO implements GameDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 ArrayList<GameData> games = new ArrayList<>();
                 while (rs.next()) {
-                    Gson gson = new Gson();
-                    ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
-                    GameData game = new GameData(
-                            rs.getInt("gameID"),
-                            rs.getString("whiteUsername"),
-                            rs.getString("blackUsername"),
-                            rs.getString("gameName"),
-                            chessGame.getBoard()
-                    );
-                    games.add(game);
+                    games.add(formatResultSet(rs));
                 }
                 return games;
             }
@@ -68,7 +59,7 @@ public class MySqlGameDAO implements GameDAO {
     }
 
     @Override
-    public void userJoin(String playerColor, int GameID, String username) throws DataAccessException {
+    public void userJoin(String playerColor, int gameID, String username) throws DataAccessException {
         String statement = null;
         if ("WHITE".equals(playerColor)) {
             statement = "UPDATE gamedata SET whiteUsername = ? WHERE gameID = ?";
@@ -78,7 +69,7 @@ public class MySqlGameDAO implements GameDAO {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(statement)) {
             ps.setString(1, username);
-            ps.setInt(2, GameID);
+            ps.setInt(2, gameID);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException("Error: failed to join user to game in gamedata table");
@@ -93,14 +84,7 @@ public class MySqlGameDAO implements GameDAO {
             ps.setString(1, gameName);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Gson gson = new Gson();
-                    ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
-                    return new GameData(
-                            rs.getInt("gameID"),
-                            rs.getString("whiteUsername"),
-                            rs.getString("blackUsername"),
-                            rs.getString("gameName"),
-                            chessGame.getBoard());
+                    return formatResultSet(rs);
                 }
             }
         } catch (SQLException e) {
@@ -117,14 +101,7 @@ public class MySqlGameDAO implements GameDAO {
             ps.setInt(1, gameID);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Gson gson = new Gson();
-                    ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
-                    return new GameData(
-                            rs.getInt("gameID"),
-                            rs.getString("whiteUsername"),
-                            rs.getString("blackUsername"),
-                            rs.getString("gameName"),
-                            chessGame.getBoard());
+                    return formatResultSet(rs);
                 }
             }
         } catch (SQLException e) {
@@ -150,5 +127,17 @@ public class MySqlGameDAO implements GameDAO {
         } catch (SQLException e) {
             throw new DataAccessException("Error: failed to create new game entry in gamedata");
         }
+    }
+
+    private GameData formatResultSet(ResultSet rs) throws SQLException {
+        Gson gson = new Gson();
+        ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);
+        return new GameData(
+                rs.getInt("gameID"),
+                rs.getString("whiteUsername"),
+                rs.getString("blackUsername"),
+                rs.getString("gameName"),
+                chessGame.getBoard()
+        );
     }
 }
