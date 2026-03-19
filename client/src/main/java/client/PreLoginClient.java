@@ -4,16 +4,16 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import ui.EscapeSequences;
-import ui.EscapeSequences.*;
+
 
 public class PreLoginClient {
-//    private final ServerFacade server;
+    private final ServerFacade server;
 //    private final WebSocketFacade ws;
 //
-//    public PreLoginClient(String serverUrl) {
-//        server = new ServerFacade(serverUrl);
+    public PreLoginClient(String serverUrl) {
+        server = new ServerFacade(serverUrl);
 //        ws = new WebSocketFacade(serverUrl, this);
-//    }
+    }
 
     public void run() {
         System.out.println("Welcome to 240 chess. Type Help to get started.");

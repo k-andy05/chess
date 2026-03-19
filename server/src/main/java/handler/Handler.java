@@ -3,9 +3,9 @@ package handler;
 import exception.InvalidRequestException;
 import io.javalin.http.Context;
 import request.RegisterRequest;
-import service.*;
-import request.*;
 import result.*;
+import request.*;
+import service.*;
 
 public class Handler {
 
