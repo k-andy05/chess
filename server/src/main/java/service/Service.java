@@ -3,10 +3,10 @@ package service;
 import exception.*;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
-import request.*;
-import result.ClearResult;
-import dataaccess.*;
 import result.*;
+import request.*;
+import dataaccess.*;
+
 import java.util.ArrayList;
 import java.util.UUID;
 
