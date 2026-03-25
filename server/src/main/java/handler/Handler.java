@@ -18,6 +18,10 @@ public class Handler {
     }
 
     public void register(Context ctx) throws InvalidRequestException {
+//        String username = RequestHelper.extractWith(ctx.body(), "username");
+//        String password = RequestHelper.extractWith(ctx.body(), "password");
+//        String email = RequestHelper.extractWith(ctx.body(), "email");
+//        RegisterRequest request = new RegisterRequest(username, email, password);
         RegisterRequest request = new RegisterRequest(ctx.body());
         RegisterResult result = service.register(request);
         ctx.status(200);

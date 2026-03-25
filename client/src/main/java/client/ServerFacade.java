@@ -2,7 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import request.LoginRequest;
+import request.*;
 import result.*;
 
 import java.net.URI;
@@ -11,7 +11,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 
-//
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
@@ -24,6 +23,12 @@ public class ServerFacade {
         HttpRequest httpRequest = buildRequest("POST", "/session", request, null);
         HttpResponse<String> httpResponse = sendResponse(httpRequest);
         return handleResponse(httpResponse, LoginResult.class);
+    }
+
+    public RegisterResult register(RegisterRequest request) throws ResponseException {
+        HttpRequest httpRequest = buildRequest("POST", "/user", request, null);
+        HttpResponse<String> httpResponse = sendResponse(httpRequest);
+        return handleResponse(httpResponse, RegisterResult.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
