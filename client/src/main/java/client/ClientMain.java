@@ -8,7 +8,8 @@ public class ClientMain {
 //        System.out.println("♕ 240 Chess Client: " + piece);
         String serverUrl = "http://localhost:8080";
         try {
-            new PreLoginClient(serverUrl).run();
+//            new PreLoginClient(serverUrl).run();
+            new Repl(serverUrl).run();
         } catch (Throwable ex) {
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
         }
