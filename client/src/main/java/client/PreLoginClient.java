@@ -69,8 +69,8 @@ public class PreLoginClient {
                     params[0], params[1], params[2]
             );
             try {
-                RegisterRequest request = new RegisterRequest(body);
-                server.register(request);
+//                RegisterRequest request = new RegisterRequest(body);
+                server.register(new RegisterRequest(body));
                 return "Successfully registered, you are now able to login" + "\n";
             } catch (Exception e) {
                 throw new InvalidRequestException(401, e.getMessage());
@@ -80,7 +80,19 @@ public class PreLoginClient {
     }
 
     public String login(String... params) throws InvalidRequestException {
-        return "test";
+        if (params.length == 2) {
+            String body = String.format(
+                    "{\"username\":\"%s\",\"password\":\"%s\"}",
+                    params[0], params[1]
+            );
+            try {
+                server.login(new LoginRequest(body));
+                return "Successfully logged in!";
+            } catch (Exception e) {
+                throw new InvalidRequestException(401, e.getMessage());
+            }
+        }
+        throw new InvalidRequestException(401, "Error: Invalid login inputs");
     }
 
     public String help() {
