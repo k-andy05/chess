@@ -34,9 +34,10 @@ public class PostLoginClient implements ClientState {
                     return join(params);
                 }
                 case "observe" -> {}
-                case "quit" -> {
-                    return "quit";
-                }
+//                case "quit" -> { // TODO make sure to know how to logout then quit
+//
+//                    return "quit";
+//                }
                 default -> {
                     return help();
                 }
@@ -97,7 +98,7 @@ public class PostLoginClient implements ClientState {
                             .append(game.whiteUsername != null ? game.whiteUsername : "n/a")
                             .append(" | Black: ")
                             .append(game.blackUsername != null ? game.blackUsername : "n/a")
-                            .append(")\n");
+                            .append("\n");
                 }
                 return formattedGameList.toString().trim();
             } catch (Exception e) {

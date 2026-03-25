@@ -28,12 +28,13 @@ public class Repl {
                 System.out.println(result);
 
                 switch (result) {
-                    case "LOGIN_SUCCESS" -> {
+                    case "LOGIN_SUCCESS", "EXIT_GAME" -> {
                         currentStatus = "LOGGED_IN";
                         state = new PostLoginClient(server);
                     }
-                    case "ENTER_GAME" -> {
-                        return;
+                    case "JOIN_SUCCESS" -> {
+                        currentStatus = "IN_GAME";
+                        state = new GameplayClient(server);
                     }
 //                    state = new GameplayClient();
                     case "LOGOUT_SUCCESS" -> {

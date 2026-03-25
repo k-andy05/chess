@@ -52,9 +52,6 @@ public class ServerFacade {
 //        System.out.println("Make sure authtoken from request == authtoken from serverfacade local var" + authToken + "==" + request.authToken);
         HttpRequest httpRequest = buildRequest("POST", "/game", request);
         CreateResult createResult = handleResponse(sendResponse(httpRequest), CreateResult.class);
-        if (createResult != null) {
-            gameID = createResult.gameID;
-        }
         return createResult;
     }
 
