@@ -36,7 +36,7 @@ public class Repl {
                         return;
                     }
 //                    state = new GameplayClient();
-                    case "LOGOUT" -> {
+                    case "LOGOUT_SUCCESS" -> {
                         currentStatus = "LOGGED_OUT";
                         state = new PreLoginClient(server);
                     }

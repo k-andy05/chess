@@ -89,7 +89,10 @@ public class PreLoginClient implements ClientState {
                     params[0], params[1]
             );
             try {
+                System.out.println("Logging in with username: " + params[0] + " and password: " + params[1]);
                 server.login(new LoginRequest(body));
+//                LoginResult loginResult = server.login(new LoginRequest(body));
+//                String authToken = loginResult.authToken;
                 return "LOGIN_SUCCESS";
             } catch (Exception e) {
                 throw new InvalidRequestException(401, e.getMessage());

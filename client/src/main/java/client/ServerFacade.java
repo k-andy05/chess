@@ -14,24 +14,61 @@ import java.net.http.HttpResponse;
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
     private final String serverUrl;
+    public String authToken;
+    public int gameID;
 
     public ServerFacade(String url) {
         serverUrl = url;
     }
 
     public LoginResult login(LoginRequest request) throws ResponseException {
-        HttpRequest httpRequest = buildRequest("POST", "/session", request, null);
+        HttpRequest httpRequest = buildRequest("POST", "/session", request);
         HttpResponse<String> httpResponse = sendResponse(httpRequest);
-        return handleResponse(httpResponse, LoginResult.class);
+        System.out.println("RAW LOGIN RESPONSE: " + httpResponse.body());
+//        return handleResponse(httpResponse, LoginResult.class);
+        LoginResult loginResult = handleResponse(httpResponse, LoginResult.class);
+        if (loginResult != null) {
+//            authToken = new Gson().toJson(loginResult);
+            authToken = loginResult.authToken;
+            System.out.println("AuthToken from login response is \"" + loginResult.authToken + "\"");
+        }
+        return loginResult;
     }
 
     public RegisterResult register(RegisterRequest request) throws ResponseException {
-        HttpRequest httpRequest = buildRequest("POST", "/user", request, null);
+        HttpRequest httpRequest = buildRequest("POST", "/user", request);
         HttpResponse<String> httpResponse = sendResponse(httpRequest);
         return handleResponse(httpResponse, RegisterResult.class);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
+    public LogoutResult logout(LogoutRequest request) throws ResponseException {
+        HttpRequest httpRequest = buildRequest("DELETE", "/session", request);
+        return handleResponse(sendResponse(httpRequest), LogoutResult.class);
+    }
+
+    public CreateResult create(CreateRequest request) throws ResponseException {
+        HttpRequest httpRequest = buildRequest("POST", "/game", request);
+        CreateResult createResult =  handleResponse(sendResponse(httpRequest), CreateResult.class);
+        if (createResult != null) {
+            gameID = createResult.gameID;
+        }
+        return createResult;
+    }
+
+    public ListResult list(ListRequest request) throws ResponseException {
+        HttpRequest httpRequest = buildRequest("GET", "/game", request);
+        return handleResponse(sendResponse(httpRequest), ListResult.class);
+    }
+
+    public JoinResult play(JoinRequest request) throws ResponseException {
+        HttpRequest httpRequest = buildRequest("PUT", "/game", request);
+        return handleResponse(sendResponse(httpRequest), JoinResult.class);
+    }
+
+//    public JoinResult observe(JoinRequest request) throws ResponseException {} // TODO
+
+    private HttpRequest buildRequest(String method, String path, Object body) {
+        System.out.println("AUTH TOKEN BEING SENT: " + authToken);
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));

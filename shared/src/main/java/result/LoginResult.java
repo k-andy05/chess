@@ -9,7 +9,10 @@ public class LoginResult {
         this.authToken = authToken;
     }
 
+//    public String toJson() {
+//        return "{\"username\":\"" + username + "\",\"authToken\":" + authToken + "\"}";
+//    }
     public String toJson() {
-        return "{\"username\":\"" + username + "\",\"authToken\":" + authToken + "\"}";
+        return "{\"username\":\"" + username + "\",\"authToken\":\"" + authToken + "\"}";
     }
 }

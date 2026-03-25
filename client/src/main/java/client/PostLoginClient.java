@@ -1,5 +1,7 @@
 package client;
 
+import request.*;
+
 import java.util.Arrays;
 
 public class PostLoginClient implements ClientState {
@@ -16,11 +18,16 @@ public class PostLoginClient implements ClientState {
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         try {
             switch (cmd) {
-                case "logout" -> {}
+                case "logout" -> {
+                    return logout(params);
+                }
                 case "create" -> {}
                 case "list" -> {}
                 case "play" -> {}
                 case "observe" -> {}
+                case "quit" -> {
+                    return "quit";
+                }
                 default -> {
                     return help();
                 }
@@ -30,6 +37,40 @@ public class PostLoginClient implements ClientState {
         }
         return null;
     }
+    public String logout(String... params) throws InvalidRequestException {
+        if (params.length == 0) {
+            try {
+                System.out.println("This is the auth token being passed into new LogoutRequest: " + server.authToken);
+                server.logout(new LogoutRequest(server.authToken));
+                return "LOGOUT_SUCCESS";
+            } catch (Exception e) {
+                throw new InvalidRequestException(401, e.getMessage());
+            }
+        }
+        throw new InvalidRequestException(401, "Error: Wrong logout parameters");
+    }
+
+    public String create(String... params) throws InvalidRequestException {
+        if (params.length == 1) {
+            String body = String.format(
+                    "{\"gameName\":\"%s\"}",
+                    params[0]
+            );
+            try {
+                server.create(new CreateRequest(body, server.authToken));
+                return "GAME_CREATED";
+            } catch (Exception e) {
+                throw new InvalidRequestException(401, e.getMessage());
+            }
+        }
+        throw new InvalidRequestException(401, "Error: game not created");
+    }
+
+//    public String list(String... params) throws InvalidRequestException {}
+
+//    public String play(String... params) throws InvalidRequestException {}
+
+//    public String observe(String... params) throws InvalidRequestException {} // TODO
 
     @Override
     public String help() {
