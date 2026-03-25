@@ -1,6 +1,7 @@
 package client;
 
 import request.*;
+import result.*;
 
 import java.util.Arrays;
 
@@ -21,7 +22,9 @@ public class PostLoginClient implements ClientState {
                 case "logout" -> {
                     return logout(params);
                 }
-                case "create" -> {}
+                case "create" -> {
+                    return create(params);
+                }
                 case "list" -> {}
                 case "play" -> {}
                 case "observe" -> {}
@@ -40,7 +43,7 @@ public class PostLoginClient implements ClientState {
     public String logout(String... params) throws InvalidRequestException {
         if (params.length == 0) {
             try {
-                System.out.println("This is the auth token being passed into new LogoutRequest: " + server.authToken);
+//                System.out.println("This is the auth token being passed into new LogoutRequest: " + server.authToken);
                 server.logout(new LogoutRequest(server.authToken));
                 return "LOGOUT_SUCCESS";
             } catch (Exception e) {
@@ -57,7 +60,10 @@ public class PostLoginClient implements ClientState {
                     params[0]
             );
             try {
-                server.create(new CreateRequest(body, server.authToken));
+//                System.out.println("game name inputted by user: " + params[0]);
+//                System.out.println("Making sure authtoken is set before game creation..." + server.authToken);
+//                CreateResult createResult = server.create(new CreateRequest(body, server.authToken));
+//                System.out.println("This is gameID assigned..." + createResult.gameID);
                 return "GAME_CREATED";
             } catch (Exception e) {
                 throw new InvalidRequestException(401, e.getMessage());

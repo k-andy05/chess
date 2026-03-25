@@ -74,6 +74,7 @@ public class PreLoginClient implements ClientState {
             );
             try {
                 server.register(new RegisterRequest(body));
+//                server.login(new LoginRequest()); //TODO make sure you are logged in after registering
                 return "Successfully registered, you are now able to login" + "\n";
             } catch (Exception e) {
                 throw new InvalidRequestException(401, e.getMessage());
