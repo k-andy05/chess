@@ -59,7 +59,7 @@ public class ServerFacade {
     }
 
     public ListResult list(ListRequest request) throws ResponseException {
-        HttpRequest httpRequest = buildRequest("GET", "/game", request);
+        HttpRequest httpRequest = buildRequest("GET", "/game", null);
         return handleResponse(sendResponse(httpRequest), ListResult.class);
     }
 
@@ -109,7 +109,11 @@ public class ServerFacade {
             }
         }
         if (responseClass != null && response.body() != null && !response.body().isEmpty()) {
-            return new Gson().fromJson(response.body(), responseClass);
+            String jsonBody = response.body();
+            if (responseClass == ListResult.class) {
+                jsonBody = jsonBody.replace("\"games\":", "\"gameList\":");
+            }
+            return new Gson().fromJson(jsonBody, responseClass);
         }
         return null;
     }
