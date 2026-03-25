@@ -30,7 +30,9 @@ public class PostLoginClient implements ClientState {
                 case "list" -> {
                     return list(params);
                 }
-                case "play" -> {}
+                case "join" -> {
+                    return join(params);
+                }
                 case "observe" -> {}
                 case "quit" -> {
                     return "quit";
@@ -80,10 +82,10 @@ public class PostLoginClient implements ClientState {
         if (params.length == 0) {
             try {
                 ListResult listResult = server.list(new ListRequest(server.authToken));
-                System.out.println("ListResult" + listResult);
-                System.out.println("ListResult gamelist: " + listResult.gameList);
+//                System.out.println("ListResult" + listResult);
+//                System.out.println("ListResult gamelist: " + listResult.gameList);
                 ArrayList<GameData> games = listResult.gameList;
-                System.out.println("These are the gameData objects currently: " + games);
+//                System.out.println("These are the gameData objects currently: " + games);
                 if (games == null || games.isEmpty()) {return "No games currently exist";}
                 StringBuilder formattedGameList = new StringBuilder();
                 for (int i = 0; i < games.size(); i++) {
@@ -102,10 +104,26 @@ public class PostLoginClient implements ClientState {
                 throw new InvalidRequestException(401, e.getMessage());
             }
         }
-        throw new InvalidRequestException(401, "Error: Gamelist not queried for correctly");
+        throw new InvalidRequestException(401, "Error: Incorrect number of inputs for list command");
     }
 
-//    public String play(String... params) throws InvalidRequestException {}
+    public String join(String... params) throws InvalidRequestException {
+        if (params.length == 2) {
+            String body = String.format(
+                    "{\"playerColor\":\"%s\",\"gameID\":%s}",
+                    params[1].toUpperCase(), params[0]
+            );
+            System.out.println("JSON body for JoinRequest arg: " + body);
+            try {
+                JoinResult joinResult = server.join(new JoinRequest(server.authToken, body));
+                System.out.println("Join Result: " + joinResult);
+                return "JOIN_SUCCESS";
+            } catch (Exception e) {
+                throw new InvalidRequestException(401, e.getMessage());
+            }
+        }
+        throw new InvalidRequestException(401, "Error: Incorrect number of inputs for join command");
+    }
 
 //    public String observe(String... params) throws InvalidRequestException {} // TODO
 

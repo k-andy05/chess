@@ -51,7 +51,7 @@ public class ServerFacade {
 //        System.out.println("Making sure request passed into serverfacade.create is right..." + request.gameName + " " + request.authToken);
 //        System.out.println("Make sure authtoken from request == authtoken from serverfacade local var" + authToken + "==" + request.authToken);
         HttpRequest httpRequest = buildRequest("POST", "/game", request);
-        CreateResult createResult =  handleResponse(sendResponse(httpRequest), CreateResult.class);
+        CreateResult createResult = handleResponse(sendResponse(httpRequest), CreateResult.class);
         if (createResult != null) {
             gameID = createResult.gameID;
         }
@@ -59,13 +59,15 @@ public class ServerFacade {
     }
 
     public ListResult list(ListRequest request) throws ResponseException {
-        HttpRequest httpRequest = buildRequest("GET", "/game", null);
+        HttpRequest httpRequest = buildRequest("GET", "/game", request);
         return handleResponse(sendResponse(httpRequest), ListResult.class);
     }
 
-    public JoinResult play(JoinRequest request) throws ResponseException {
+    public JoinResult join(JoinRequest request) throws ResponseException {
+        System.out.println("Join Request params: " + request.authToken + " " + request.playerColor + " " + request.gameID);
         HttpRequest httpRequest = buildRequest("PUT", "/game", request);
-        return handleResponse(sendResponse(httpRequest), JoinResult.class);
+        JoinResult joinResult = handleResponse(sendResponse(httpRequest), JoinResult.class);
+        return joinResult;
     }
 
 //    public JoinResult observe(JoinRequest request) throws ResponseException {} // TODO
