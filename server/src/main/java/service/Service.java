@@ -114,12 +114,18 @@ public class Service {
             throw new InvalidRequestException(400, "Error: Game not found");
         }
         if (request.playerColor.equals("WHITE")) {
-            if (gameData.whiteUsername != null) {
+            if (gameData.whiteUsername != null && !gameData.whiteUsername.equals(authData.username)) {
+                if (authData.username.equals(gameData.blackUsername)) {
+                    throw new InvalidRequestException(403, "Error: User is already in this game as the black team");
+                }
                 throw new InvalidRequestException(403, "Error: White team color already taken");
             }
         }
         if (request.playerColor.equals("BLACK")) {
-            if (gameData.blackUsername != null) {
+            if (gameData.blackUsername != null && !gameData.blackUsername.equals(authData.username)) {
+                if (authData.username.equals(gameData.whiteUsername)) {
+                    throw new InvalidRequestException(403, "Error: User is already in this game as the white team");
+                }
                 throw new InvalidRequestException(403, "Error: Black team color already taken");
             }
         }

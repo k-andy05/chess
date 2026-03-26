@@ -1,7 +1,9 @@
 package client;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import exception.ResponseException;
+import model.GameData;
 import request.*;
 import result.*;
 
@@ -16,6 +18,7 @@ public class ServerFacade {
     private final String serverUrl;
     public String authToken;
     public int gameID;
+    public String playerColor;
 
     public ServerFacade(String url) {
         serverUrl = url;
@@ -38,7 +41,11 @@ public class ServerFacade {
     public RegisterResult register(RegisterRequest request) throws ResponseException {
         HttpRequest httpRequest = buildRequest("POST", "/user", request);
         HttpResponse<String> httpResponse = sendResponse(httpRequest);
-        return handleResponse(httpResponse, RegisterResult.class);
+        RegisterResult result = handleResponse(httpResponse, RegisterResult.class);
+        if (result != null && result.authToken != null) {
+            this.authToken = result.authToken;
+        }
+        return result;
     }
 
     public LogoutResult logout(LogoutRequest request) throws ResponseException {
@@ -64,10 +71,23 @@ public class ServerFacade {
         System.out.println("Join Request params: " + request.authToken + " " + request.playerColor + " " + request.gameID);
         HttpRequest httpRequest = buildRequest("PUT", "/game", request);
         JoinResult joinResult = handleResponse(sendResponse(httpRequest), JoinResult.class);
+        this.gameID = request.gameID;
+        this.playerColor = request.playerColor;
+        System.out.println("Current game ID: " + gameID);
         return joinResult;
     }
 
-//    public JoinResult observe(JoinRequest request) throws ResponseException {} // TODO
+    public void clear() throws ResponseException {
+        HttpRequest httpRequest = buildRequest("DELETE", "/db", null);
+        handleResponse(sendResponse(httpRequest), null);
+    }
+
+    public void observe(JoinRequest request) throws ResponseException {
+        HttpRequest httpRequest = buildRequest("PUT", "/game", request);
+        handleResponse(sendResponse(httpRequest), null);
+        this.gameID = request.gameID;
+        this.playerColor = request.playerColor;
+    }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
 //        System.out.println("AUTH TOKEN BEING SENT: " + authToken);
@@ -112,6 +132,8 @@ public class ServerFacade {
             if (responseClass == ListResult.class) {
                 jsonBody = jsonBody.replace("\"games\":", "\"gameList\":");
             }
+//            GsonBuilder builder = new GsonBuilder();
+//            Gson gson = builder.create();
             return new Gson().fromJson(jsonBody, responseClass);
         }
         return null;

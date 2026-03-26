@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -48,9 +49,10 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public void createGame(String gameName) {
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
-        GameData newGame = new GameData(nextGameNumber, null, null, gameName, board);
+        ChessGame game = new ChessGame();
+//        ChessBoard board = new ChessBoard();
+        game.getBoard().resetBoard();
+        GameData newGame = new GameData(nextGameNumber, null, null, gameName, game);
         nextGameNumber++;
         games.put(gameName, newGame);
     }
