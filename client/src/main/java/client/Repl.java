@@ -16,13 +16,10 @@ public class Repl {
     public void run() {
         Scanner scanner = new Scanner(System.in);
         String result = "";
-
         System.out.println("Welcome to 240 chess! Type help to get started.");
-
         while (!result.equals("quit")) {
             System.out.print("\n" + currentStatus + ">>> ");
             String input = scanner.nextLine();
-
             try {
                 result = state.eval(input);
                 System.out.println(result);
@@ -36,13 +33,11 @@ public class Repl {
                         currentStatus = "IN_GAME";
                         state = new GameplayClient(server);
                     }
-//                    state = new GameplayClient();
                     case "LOGOUT_SUCCESS" -> {
                         currentStatus = "LOGGED_OUT";
                         state = new PreLoginClient(server);
                     }
                 }
-
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

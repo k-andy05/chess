@@ -45,11 +45,6 @@ public class PreLoginClient implements ClientState {
             );
             try {
                 server.register(new RegisterRequest(body));
-//                String loginBody = String.format(
-//                        "{\"username\":\"%s\",\"password\":\"%s\"}",
-//                        params[0], params[1]
-//                );
-//                server.login(new LoginRequest(loginBody));
                 System.out.print("Successfully registered!\n");
                 return "LOGIN_SUCCESS";
             } catch (Exception e) {
@@ -72,7 +67,6 @@ public class PreLoginClient implements ClientState {
                     params[0], params[1]
             );
             try {
-                System.out.println("Logging in with username: " + params[0] + " and password: " + params[1]);
                 server.login(new LoginRequest(body));
                 return "LOGIN_SUCCESS";
             } catch (Exception e) {

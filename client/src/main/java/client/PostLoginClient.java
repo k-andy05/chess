@@ -86,8 +86,6 @@ public class PostLoginClient implements ClientState {
             try {
                 ListResult listResult = server.list(new ListRequest(server.authToken));
                 cachedGames = listResult.gameList != null ? listResult.gameList : new ArrayList<>();
-//                ArrayList<GameData> games = listResult.gameList;
-//                System.out.println("These are the gameData objects currently: " + games);
                 if (cachedGames.isEmpty()) {
                     return "No games currently exist";
                 }
@@ -151,26 +149,6 @@ public class PostLoginClient implements ClientState {
         throw new InvalidRequestException(400, "Error: Incorrect number of inputs for join command");
     }
 
-
-
-
-//        if (params.length == 2) {
-//            String body = String.format(
-//                    "{\"playerColor\":\"%s\",\"gameID\":%s}",
-//                    params[1].toUpperCase(), params[0]
-//            );
-//            System.out.println("JSON body for JoinRequest arg: " + body);
-//            try {
-//                JoinResult joinResult = server.join(new JoinRequest(server.authToken, body));
-//                System.out.println("Join Result: " + joinResult);
-//                return "JOIN_SUCCESS";
-//            } catch (Exception e) {
-//                throw new InvalidRequestException(401, e.getMessage());
-//            }
-//        }
-//        throw new InvalidRequestException(401, "Error: Incorrect number of inputs for join command");
-//    }
-
     public String observe(String... params) throws InvalidRequestException {
         try {
             cachedGames = server.list(new ListRequest(server.authToken)).gameList;
@@ -184,9 +162,7 @@ public class PostLoginClient implements ClientState {
                 if (gameIndex < 0 || gameIndex >= cachedGames.size()) {
                     throw new InvalidRequestException(400, "Observe failed: Invalid game number. Type 'list' to see possible games");
                 }
-
                 int actualGameID = cachedGames.get(gameIndex).gameID;
-
                 String body = String.format("{\"gameID\":%d}", actualGameID);
                 server.observe(new JoinRequest(server.authToken, body));
                 return "JOIN_SUCCESS";
