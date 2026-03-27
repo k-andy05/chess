@@ -162,9 +162,7 @@ public class PostLoginClient implements ClientState {
                 if (gameIndex < 0 || gameIndex >= cachedGames.size()) {
                     throw new InvalidRequestException(400, "Observe failed: Invalid game number. Type 'list' to see possible games");
                 }
-                int actualGameID = cachedGames.get(gameIndex).gameID;
-                String body = String.format("{\"gameID\":%d}", actualGameID);
-                server.observe(new JoinRequest(server.authToken, body));
+                server.playerColor = null;
                 return "JOIN_SUCCESS";
             } catch (NumberFormatException e) {
                 throw new InvalidRequestException(400, "Observe failed: Game number must be an integer");

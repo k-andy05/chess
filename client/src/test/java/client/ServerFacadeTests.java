@@ -147,7 +147,8 @@ public class ServerFacadeTests {
         var createResult = facade.create(new CreateRequest("{\"gameName\":\"testgame\"}", registerResult.authToken));
         String joinBody = String.format("{\"playerColor\":\"WHITE\",\"gameID\":%d}", createResult.gameID);
         facade.join(new JoinRequest(registerResult.authToken, joinBody));
-        var registerResult2 = facade.register(new RegisterRequest("{\"username\":\"testuser2\",\"password\":\"abc\",\"email\":\"different@email.com\"}"));
+        String requestBody = "{\"username\":\"testuser2\",\"password\":\"abc\",\"email\":\"different@email.com\"}";
+        var registerResult2 = facade.register(new RegisterRequest(requestBody));
         String joinBody2 = String.format("{\"playerColor\":\"WHITE\",\"gameID\":%d}", createResult.gameID);
         assertThrows(ResponseException.class, () ->
                 facade.join(new JoinRequest(registerResult2.authToken, joinBody2))
@@ -155,10 +156,26 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void observeSuccess() throws ResponseException {}
+    public void observeSuccess() throws ResponseException {
+        var registerResult = registerSetup();
+        var createResult = facade.create(new CreateRequest("{\"gameName\":\"testgame\"}", registerResult.authToken));
+        String requestBody = "{\"username\":\"testuser2\",\"password\":\"abc\",\"email\":\"different@email.com\"}";
+        var registerResult2 = facade.register(new RegisterRequest(requestBody));
+        String joinBody2 = String.format("{\"playerColor\":\"WHITE\",\"gameID\":%d}", createResult.gameID);
+        facade.observe(new JoinRequest(registerResult2.authToken, joinBody2));
+    }
 
     @Test
-    public void observeFail() throws ResponseException {}
+    public void observeFail() throws ResponseException {
+        var registerResult = registerSetup();
+        var createResult = facade.create(new CreateRequest("{\"gameName\":\"testgame\"}", registerResult.authToken));
+        String requestBody = "{\"username\":\"testuser2\",\"password\":\"abc\",\"email\":\"different@email.com\"}";
+        var registerResult2 = facade.register(new RegisterRequest(requestBody));
+        String joinBody2 = String.format("{\"playerColor\":\"WHITE\",\"gameID\":%d}", 1000);
+        assertThrows(ResponseException.class, () ->
+                facade.observe(new JoinRequest(registerResult2.authToken, joinBody2))
+        );
+    }
 
     @Test
     public void clearSuccess() throws ResponseException {
