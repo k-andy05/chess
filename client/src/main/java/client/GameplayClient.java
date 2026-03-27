@@ -105,21 +105,6 @@ public class GameplayClient implements ClientState {
         return textColor + pieceSymbol;
     }
 
-    private ChessBoard getGame() {
-        ListRequest request = new ListRequest(server.authToken);
-        try {
-            ListResult result = server.list(request);
-            for (GameData game : result.gameList) {
-                if (game.gameID == server.gameID) {
-                    return game.game.getBoard();
-                }
-            }
-        } catch (Exception e) {
-            throw new InvalidRequestException(401, e.getMessage());
-        }
-        throw new InvalidRequestException(401, "Error: not able to process inputs??? idk");
-    }
-
     @Override
     public String help() {
         return """
