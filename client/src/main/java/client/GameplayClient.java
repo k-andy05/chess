@@ -1,22 +1,30 @@
 package client;
 
 import java.util.Arrays;
+import java.util.EmptyStackException;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
+import exception.ResponseException;
 import model.GameData;
 import request.ListRequest;
 import result.ListResult;
 import ui.EscapeSequences.*;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import static ui.EscapeSequences.*;
 
-public class GameplayClient implements ClientState {
+public class GameplayClient implements ClientState, NotificationHandler{
     private final ServerFacade server;
+    private final WebSocketFacade ws;
     private String[][] board = new String[8][8];
 
-    public GameplayClient(ServerFacade server) {
+    public GameplayClient(ServerFacade server) throws ResponseException {
         this.server = server;
+        this.ws = new WebSocketFacade(server.serverUrl , this);
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         updateBoard(board);
@@ -30,12 +38,21 @@ public class GameplayClient implements ClientState {
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         try {
             switch (cmd) {
+                case "redraw" -> {
+                    printBoard();
+                    return "";
+                }
                 case "leave" -> {
                     return leave();
                 }
-                case "print" -> {
-                    printBoard();
-                    return "";
+                case "move" -> {
+                    return makeMove();
+                }
+                case "resign" -> {
+                    return resign();
+                }
+                case "highlight" -> {
+                    return highlight();
                 }
                 default -> {
                     return help();
@@ -44,6 +61,24 @@ public class GameplayClient implements ClientState {
         } catch (Exception e) {
             throw new InvalidRequestException(401, e.getMessage());
         }
+
+
+//        try {
+//            switch (cmd) {
+//                case "leave" -> {
+//                    return leave();
+//                }
+//                case "print" -> {
+//                    printBoard();
+//                    return "";
+//                }
+//                default -> {
+//                    return help();
+//                }
+//            }
+//        } catch (Exception e) {
+//            throw new InvalidRequestException(401, e.getMessage());
+//        }
     }
 
     public String leave() {
@@ -108,9 +143,22 @@ public class GameplayClient implements ClientState {
     @Override
     public String help() {
         return """
-                leave - game and go to logged-in display
-                ... - NEED TO ADD ACTIONABLE COMMANDS FOR CHESS BOARD
                 help - with possible commands
+                redraw - chess board with current game status
+                leave - current game interface and remove player from game
+                move <start position> <end position> - a chess piece
+                resign - from the game (will not remove player from the game)
+                highlight <chesspiece position> - legal moves
                 """;
+    }
+
+    @Override
+    public void notify(ServerMessage notification) { // TODO implement switch cases
+        ServerMessage.ServerMessageType msgType = notification.getServerMessageType();
+        switch (msgType) {
+            case LOAD_GAME -> {}
+            case ERROR -> {}
+            case NOTIFICATION -> {}
+        }
     }
 }

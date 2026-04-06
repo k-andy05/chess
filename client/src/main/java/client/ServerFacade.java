@@ -13,7 +13,7 @@ import java.net.http.HttpResponse;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
-    private final String serverUrl;
+    public final String serverUrl;
     public String authToken;
     public int gameID;
     public String playerColor;
