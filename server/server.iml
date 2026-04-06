@@ -36,5 +36,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="glassfish.tyrus.bundles.standalone.client" level="project" />
   </component>
 </module>
