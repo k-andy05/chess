@@ -6,6 +6,8 @@ import exception.InvalidRequestException;
 import handler.*;
 import io.javalin.*;
 import com.google.gson.Gson;
+import server.websocket.WebSocketHandler;
+
 import java.util.Map;
 
 public class Server {
@@ -22,6 +24,13 @@ public class Server {
         }
         handler = new Handler();
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
+        WebSocketHandler webSockethandler = new WebSocketHandler();
+
+        // WebSocket Endpoint
+        javalin.ws("/ws", ws -> { ws.onConnect(webSockethandler);
+            ws.onMessage(webSockethandler);
+            ws.onClose(webSockethandler);
+        });
 
         // Clear endpoint
         javalin.delete("/db", handler::clear);

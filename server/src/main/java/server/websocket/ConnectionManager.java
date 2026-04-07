@@ -36,7 +36,7 @@ public class ConnectionManager {
         }
         for (Session c : relevantSessionSet) {
             if (c.isOpen()) {
-                if (!c.equals(excludeSession)) {
+                if (!c.equals(excludeSession)) { // Why is this needed? it was in petshop???
                     c.getRemote().sendString(msg);
                 }
             }
