@@ -12,6 +12,7 @@ import model.GameData;
 import request.ListRequest;
 import result.ListResult;
 import ui.EscapeSequences.*;
+import websocket.commands.UserGameCommand.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -25,6 +26,8 @@ public class GameplayClient implements ClientState, NotificationHandler{
     public GameplayClient(ServerFacade server) throws ResponseException {
         this.server = server;
         this.ws = new WebSocketFacade(server.serverUrl , this);
+        ws.sendCommand(new UserGameCommand(CommandType.CONNECT, server.authToken, server.gameID));
+
         ChessBoard board = new ChessBoard();
         board.resetBoard();
         updateBoard(board);
@@ -38,20 +41,23 @@ public class GameplayClient implements ClientState, NotificationHandler{
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         try {
             switch (cmd) {
-                case "redraw" -> {
+                case "redraw" -> { // TODO implement getting current board from server
                     printBoard();
                     return "";
                 }
                 case "leave" -> {
-                    return leave();
+                    ws.sendCommand(new UserGameCommand(CommandType.LEAVE, server.authToken, server.gameID));
+                    return "";
                 }
                 case "move" -> {
-                    return makeMove();
+                    ws.sendCommand(new UserGameCommand(CommandType.MAKE_MOVE, server.authToken, server.gameID));
+                    return "";
                 }
                 case "resign" -> {
-                    return resign();
+                    ws.sendCommand(new UserGameCommand(CommandType.RESIGN, server.authToken, server.gameID));
+                    return "";
                 }
-                case "highlight" -> {
+                case "highlight" -> { // TODO implement getting current board and adjusting for possible moves in printing board itself
                     return highlight();
                 }
                 default -> {
@@ -61,28 +67,28 @@ public class GameplayClient implements ClientState, NotificationHandler{
         } catch (Exception e) {
             throw new InvalidRequestException(401, e.getMessage());
         }
-
-
-//        try {
-//            switch (cmd) {
-//                case "leave" -> {
-//                    return leave();
-//                }
-//                case "print" -> {
-//                    printBoard();
-//                    return "";
-//                }
-//                default -> {
-//                    return help();
-//                }
-//            }
-//        } catch (Exception e) {
-//            throw new InvalidRequestException(401, e.getMessage());
-//        }
     }
 
-    public String leave() {
-        return "EXIT_GAME";
+    @Override
+    public String help() {
+        return """
+                help - with possible commands
+                redraw - chess board with current game status
+                leave - current game interface and remove player from game
+                move <start position> <end position> - a chess piece
+                resign - from the game (will not remove player from the game)
+                highlight <chesspiece position> - legal moves
+                """;
+    }
+
+    @Override
+    public void notify(ServerMessage notification) { // TODO implement switch cases
+        ServerMessage.ServerMessageType msgType = notification.getServerMessageType();
+        switch (msgType) {
+            case LOAD_GAME -> {}
+            case ERROR -> {}
+            case NOTIFICATION -> {}
+        }
     }
 
     private void printBoard() {
@@ -138,27 +144,5 @@ public class GameplayClient implements ClientState, NotificationHandler{
             case PAWN -> piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_PAWN : BLACK_PAWN;
         };
         return textColor + pieceSymbol;
-    }
-
-    @Override
-    public String help() {
-        return """
-                help - with possible commands
-                redraw - chess board with current game status
-                leave - current game interface and remove player from game
-                move <start position> <end position> - a chess piece
-                resign - from the game (will not remove player from the game)
-                highlight <chesspiece position> - legal moves
-                """;
-    }
-
-    @Override
-    public void notify(ServerMessage notification) { // TODO implement switch cases
-        ServerMessage.ServerMessageType msgType = notification.getServerMessageType();
-        switch (msgType) {
-            case LOAD_GAME -> {}
-            case ERROR -> {}
-            case NOTIFICATION -> {}
-        }
     }
 }
