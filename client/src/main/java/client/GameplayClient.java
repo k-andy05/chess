@@ -188,7 +188,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
                 // 3. Set the background color!
                 String backGround;
                 if (startPosition != null && startPosition.equals(currentSquare)) {
-                    backGround = SET_BG_COLOR_YELLOW; // Highlight the piece you selected
+                    backGround = SET_BG_COLOR_MAGENTA; // Highlight the piece you selected
                 } else if (isHighlight) {
                     backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
                 } else {
