@@ -1,5 +1,8 @@
 package server.websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.MySqlAuthDAO;
 import dataaccess.MySqlGameDAO;
@@ -88,7 +91,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void makeMove(UserGameCommand command, Session session) throws IOException { // TODO figure out later after message from client is built and handled...
+    private void makeMove(UserGameCommand command, Session session) throws IOException, InvalidMoveException, ResponseException { // TODO figure out later after message from client is built and handled...
         MySqlAuthDAO authDAO = new MySqlAuthDAO();
         AuthData authData = authDAO.getAuth(command.getAuthToken());
         if (authData == null) {
@@ -105,7 +108,39 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             sendMessage(session, errorMessage);
             return;
         }
-
+        if (gameData.game.isGameOver()) {
+            String messageStr = "Error: Game has already ended. No more moves are allowed";
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            sendMessage(session, errorMessage);
+            return;
+        }
+        if (!authData.username.equals(gameData.whiteUsername) && !authData.username.equals(gameData.blackUsername)) {
+            String messageStr = "Error: observer not permitted to make a move";
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            sendMessage(session, errorMessage);
+            return;
+        }
+        if (gameData.game.getTeamTurn() == ChessGame.TeamColor.WHITE && authData.username.equals(gameData.blackUsername)
+        || gameData.game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username.equals(gameData.whiteUsername)) {
+            String messageStr = "Error: It is not your turn to make moves yet";
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            sendMessage(session, errorMessage);
+            return;
+        }
+        ChessMove chessMove = new ChessMove(); //TODO figure out how to create Chessmove (get start, end and promotion piece)
+        try {
+            gameData.game.makeMove(chessMove);
+        } catch (InvalidMoveException e) {
+            throw new ResponseException(ResponseException.Code.ServerError, "Error: " + e.getMessage());
+        }
+        gameDAO.updateGame(gameData);
+        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game);
+        sendMessage(session, loadGameMessage);
+        connections.broadcast(session, loadGameMessage, command.getGameID());
+        String messageStr = String.format("%s: a6 to b4", authData.username);
+        NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, messageStr);
+        sendMessage(session, notificationMessage);
+        connections.broadcast(session, notificationMessage, command.getGameID());
     }
 
     private void leave(UserGameCommand command, Session session) throws IOException, ResponseException {
