@@ -127,7 +127,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             sendMessage(session, errorMessage);
             return;
         }
-        ChessMove chessMove = new ChessMove(); //TODO figure out how to create Chessmove (get start, end and promotion piece)
+        ChessMove chessMove = command.getChessMove();
+//        ChessMove chessMove = new ChessMove(); //TODO figure out how to create Chessmove (get start, end and promotion piece)
         try {
             gameData.game.makeMove(chessMove);
         } catch (InvalidMoveException e) {
