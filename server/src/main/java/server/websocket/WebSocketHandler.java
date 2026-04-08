@@ -56,7 +56,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         AuthData authData = authDAO.getAuth(command.getAuthToken());
         if (authData == null) {
             String messageStr = "Error: auth token not valid";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
@@ -64,7 +64,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = gameDAO.getGameByID(command.getGameID());
         if (gameData == null) {
             String messageStr = "Error: game does not exist";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
@@ -79,10 +79,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else {
             messageStr = String.format("%s has joined the game as an observer", authData.username);
         }
-        NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, messageStr);
+        NotificationMessage notificationMessage = new NotificationMessage(messageStr);
         try {
             connections.add(session, command.getGameID());
-            LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game);
+            LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game);
             sendMessage(session, loadGameMessage);
             connections.broadcast(session, notificationMessage, command.getGameID());
         } catch (IOException | ResponseException e) {
@@ -96,7 +96,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         AuthData authData = authDAO.getAuth(command.getAuthToken());
         if (authData == null) {
             String messageStr = "Error: auth token not valid";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
@@ -104,26 +104,26 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = gameDAO.getGameByID(command.getGameID());
         if (gameData == null) {
             String messageStr = "Error: game does not exist";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
         if (gameData.game.isGameOver()) {
             String messageStr = "Error: Game has already ended. No more moves are allowed";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
         if (!authData.username.equals(gameData.whiteUsername) && !authData.username.equals(gameData.blackUsername)) {
             String messageStr = "Error: observer not permitted to make a move";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
         if (gameData.game.getTeamTurn() == ChessGame.TeamColor.WHITE && authData.username.equals(gameData.blackUsername)
         || gameData.game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username.equals(gameData.whiteUsername)) {
             String messageStr = "Error: It is not your turn to make moves yet";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
@@ -131,14 +131,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             gameData.game.makeMove(chessMove);
         } catch (InvalidMoveException e) {
-            throw new ResponseException(ResponseException.Code.ServerError, "Error: " + e.getMessage());
+            String messageStr = "Error: Move not permitted";
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
+            sendMessage(session, errorMessage);
+            return;
         }
         gameDAO.updateGame(gameData);
-        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameData.game);
+        LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game);
         sendMessage(session, loadGameMessage);
         connections.broadcast(session, loadGameMessage, command.getGameID());
         String messageStr = String.format("%s: a6 to b4", authData.username);
-        NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, messageStr);
+        NotificationMessage notificationMessage = new NotificationMessage(messageStr);
         sendMessage(session, notificationMessage);
         connections.broadcast(session, notificationMessage, command.getGameID());
     }
@@ -148,7 +151,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         AuthData authData = authDAO.getAuth(command.getAuthToken());
         if (authData == null) {
             String messageStr = "Error: auth token not valid";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
@@ -156,7 +159,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = gameDAO.getGameByID(command.getGameID());
         if (gameData == null) {
             String messageStr = "Error: game does not exist";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
@@ -168,7 +171,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameDAO.updateGame(gameDataNew);
         }
         String messageStr = String.format("%s has left the game", authData.username);
-        NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, messageStr);
+        NotificationMessage notificationMessage = new NotificationMessage(messageStr);
         try {
             connections.remove(session, command.getGameID());
             connections.broadcast(session, notificationMessage, command.getGameID());
@@ -184,7 +187,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         AuthData authData = authDAO.getAuth(command.getAuthToken());
         if (authData == null) {
             String messageStr = "Error: auth token not valid";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
@@ -192,13 +195,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gameData = gameDAO.getGameByID(command.getGameID());
         if (gameData == null) {
             String messageStr = "Error: game does not exist";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
         if (gameData.game.isGameOver()) {
             String messageStr = "Error: Game has already ended";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
@@ -206,11 +209,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameData.game.setGameOver(true);
             gameDAO.updateGame(gameData);
             String messageStr = String.format("%s has resigned", authData.username);
-            NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, messageStr);
+            NotificationMessage notificationMessage = new NotificationMessage(messageStr);
             connections.broadcast(session, notificationMessage, command.getGameID());
         } else {
             String messageStr = "Error: observer not permitted to resign a game";
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, messageStr);
+            ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
         }
 
