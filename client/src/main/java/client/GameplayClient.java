@@ -1,10 +1,14 @@
 package client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EmptyStackException;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPosition;
+import chess.ChessMove;
+import chess.ChessPiece.PieceType;
 import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import exception.ResponseException;
@@ -50,7 +54,9 @@ public class GameplayClient implements ClientState, NotificationHandler{
                     return "";
                 }
                 case "move" -> {
-                    ws.sendCommand(new UserGameCommand(CommandType.MAKE_MOVE, server.authToken, server.gameID));
+                    ChessMove chessMove = makeChessMove(params);
+                    UserGameCommand command = new UserGameCommand(CommandType.MAKE_MOVE, server.authToken, server.gameID);
+                    ws.sendCommand(command);
                     return "";
                 }
                 case "resign" -> {
@@ -58,7 +64,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
                     return "";
                 }
                 case "highlight" -> { // TODO implement getting current board and adjusting for possible moves in printing board itself
-                    return highlight();
+                    return highlight(params);
                 }
                 default -> {
                     return help();
@@ -67,6 +73,30 @@ public class GameplayClient implements ClientState, NotificationHandler{
         } catch (Exception e) {
             throw new InvalidRequestException(401, e.getMessage());
         }
+    }
+
+    private ChessMove makeChessMove(String ... params) throws InvalidRequestException {
+        if (params.length == 2) {
+            int startRow;
+            int startCol;
+            int endRow;
+            int endCol;
+            try {
+                startCol = params[0].charAt(0) - 'a' + 1;
+                startRow = params[0].charAt(1) - 0;
+                endCol = params[1].charAt(0) - 'a' + 1;
+                endRow = params[1].charAt(1) - 0;
+            } catch (NumberFormatException e) {
+                throw new InvalidRequestException(
+                        400, "Error: input type must be <Letter><Number> for start and end positions.");
+            }
+            ChessPosition startPosition = new ChessPosition(startRow, startCol);
+            ChessPosition endPosition = new ChessPosition(endRow, endCol);
+            PieceType promotionPiece = null; // TODO figure out how to set propotionPiece type based on user input or stop and then ask user what piece they want it to be
+            return new ChessMove(startPosition, endPosition, promotionPiece);
+
+        }
+        throw new InvalidRequestException(401, "Error: invalid number of inputs for move");
     }
 
     @Override

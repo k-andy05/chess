@@ -60,7 +60,7 @@ public class PostLoginClient implements ClientState {
                 throw new InvalidRequestException(500, "Logout failed: " + e.getMessage());
             }
         }
-        throw new InvalidRequestException(400, "Error: Wrong number of logout inputs");
+        throw new InvalidRequestException(401, "Error: Wrong number of logout inputs");
     }
 
     public String create(String... params) throws InvalidRequestException {

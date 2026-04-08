@@ -129,6 +129,26 @@ public class MySqlGameDAO implements GameDAO {
         }
     }
 
+//    @Override
+    public void updateGame(GameData gameDataNew) throws DataAccessException {
+        String statement = "UPDATE gamedata SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(statement)) {
+            ChessGame newGame = gameDataNew.game;
+            Gson gson = new Gson();
+            String newGameJson = gson.toJson(newGame);
+//            GameData gameDataOrig = this.getGameByID(gameDataNew.gameID);
+            ps.setString(1, gameDataNew.whiteUsername);
+            ps.setString(2, gameDataNew.blackUsername);
+            ps.setString(3, gameDataNew.gameName);
+            ps.setString(4, newGameJson);
+            ps.setInt(5, gameDataNew.gameID);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: failed to update game entry in gamedata");
+        }
+    }
+
     private GameData formatResultSet(ResultSet rs) throws SQLException {
         Gson gson = new Gson();
         ChessGame chessGame = gson.fromJson(rs.getString("game"), ChessGame.class);

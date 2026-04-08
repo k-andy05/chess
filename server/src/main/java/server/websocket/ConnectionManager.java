@@ -36,7 +36,8 @@ public class ConnectionManager {
         }
         for (Session c : relevantSessionSet) {
             if (c.isOpen()) {
-                if (!c.equals(excludeSession)) { // Why is this needed? it was in petshop???
+                c.getRemote().sendString(msg);
+                if (!c.equals(excludeSession)) { // Why is this needed? it was in petshop??? it's needed so it isn't sent to user who did the action
                     c.getRemote().sendString(msg);
                 }
             }
