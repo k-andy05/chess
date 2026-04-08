@@ -53,12 +53,16 @@ public class GameplayClient implements ClientState, NotificationHandler{
         try {
             switch (cmd) {
                 case "redraw" -> {
-                    printBoard(null, null);
-                    return "";
+                    if (params.length == 1) {
+                        printBoard(null, null);
+                        return "";
+                    } throw new InvalidRequestException(400, "Error: Incorrect number of inputs for redraw");
                 }
                 case "leave" -> {
-                    ws.sendCommand(new UserGameCommand(CommandType.LEAVE, server.authToken, server.gameID));
-                    return "EXIT_GAME";
+                    if (params.length == 1) {
+                        ws.sendCommand(new UserGameCommand(CommandType.LEAVE, server.authToken, server.gameID));
+                        return "EXIT_GAME";
+                    } throw new InvalidRequestException(400, "Error: Incorrect number of inputs for leave");
                 }
                 case "move" -> {
                     ChessMove chessMove = makeChessMove(params);
@@ -67,10 +71,12 @@ public class GameplayClient implements ClientState, NotificationHandler{
                     return "";
                 }
                 case "resign" -> {
-                    ws.sendCommand(new UserGameCommand(CommandType.RESIGN, server.authToken, server.gameID));
-                    return "";
+                    if (params.length == 1) {
+                        ws.sendCommand(new UserGameCommand(CommandType.RESIGN, server.authToken, server.gameID));
+                        return "";
+                    } throw new InvalidRequestException(400, "Error: Incorrect number of inputs for resign");
                 }
-                case "highlight" -> { // TODO implement getting current board and adjusting for possible moves in printing board itself
+                case "highlight" -> {
                     return highlight(params);
                 }
                 default -> {

@@ -35,10 +35,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(WsMessageContext ctx) {
         try {
-            UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
+            String rawJson = ctx.message();
+            UserGameCommand command = new Gson().fromJson(rawJson, UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> { connect(command, ctx.session); }
-                case MAKE_MOVE -> { makeMove(command, ctx.session); }
+                case MAKE_MOVE -> {
+                    MakeMoveCommand moveCommand = new Gson().fromJson(rawJson, MakeMoveCommand.class);
+                    makeMove(moveCommand, ctx.session);
+                }
                 case LEAVE -> { leave(command, ctx.session); }
                 case RESIGN -> { resign(command, ctx.session); }
             }
@@ -87,7 +91,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.add(session, command.getGameID());
             LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game);
             sendMessage(session, loadGameMessage);
+            System.out.print("Just sent LoadGameMessage to specific user");
             connections.broadcast(session, notificationMessage, command.getGameID());
+            System.out.print("Just broadcasted connect message to everyone except user who connected");
         } catch (IOException | ResponseException e) {
             throw new ResponseException(ResponseException.Code.ServerError,
                     "Error: " + e.getMessage());
@@ -179,6 +185,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             connections.remove(session, command.getGameID());
             connections.broadcast(session, notificationMessage, command.getGameID());
+            System.out.print("Just broadcasted message to everyone except user who left that user left game");
         } catch (IOException | ResponseException e) {
             throw new ResponseException(ResponseException.Code.ServerError,
                     "Error: " + e.getMessage());
