@@ -2,6 +2,7 @@ package client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EmptyStackException;
 
 import chess.ChessBoard;
@@ -31,6 +32,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
     private final ServerFacade server;
     private final WebSocketFacade ws;
     private String[][] board = new String[8][8];
+    private ChessGame game;
 
     public GameplayClient(ServerFacade server) throws ResponseException {
         this.server = server;
@@ -51,7 +53,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
         try {
             switch (cmd) {
                 case "redraw" -> {
-                    printBoard();
+                    printBoard(null, null);
                     return "";
                 }
                 case "leave" -> {
@@ -69,8 +71,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
                     return "";
                 }
                 case "highlight" -> { // TODO implement getting current board and adjusting for possible moves in printing board itself
-//                    return highlight(params);
-                    return help();
+                    return highlight(params);
                 }
                 default -> {
                     return help();
@@ -98,9 +99,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
             }
             ChessPosition startPosition = new ChessPosition(startRow, startCol);
             ChessPosition endPosition = new ChessPosition(endRow, endCol);
-//            PieceType promotionPiece = null; // TODO figure out how to set propotionPiece type based on user input or stop and then ask user what piece they want it to be
             PieceType promotionPiece = null;
-
             if (params.length == 3) {
                 promotionPiece = switch (params[2].toLowerCase()) {
                     case "queen" -> PieceType.QUEEN;
@@ -136,8 +135,9 @@ public class GameplayClient implements ClientState, NotificationHandler{
         switch (msgType) {
             case LOAD_GAME -> {
                 LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-                updateBoard(loadGameMessage.getGame().getBoard());
-                printBoard();
+                this.game = loadGameMessage.getGame();
+                updateBoard(this.game.getBoard());
+                printBoard(null, null);
             }
             case ERROR -> {
                 ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
@@ -152,7 +152,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
         }
     }
 
-    private void printBoard() {
+    private void printBoard(ChessPosition startPosition, Collection<ChessMove> validMoves) {
         System.out.print(ERASE_SCREEN);
         boolean blackTeam = "BLACK".equals(server.playerColor);
         System.out.print("  ");
@@ -161,23 +161,84 @@ public class GameplayClient implements ClientState, NotificationHandler{
             System.out.print(" " + colHeader + " ");
         }
         System.out.println();
+
         for (int row = 0; row < 8; row++) {
             int rowLabel = blackTeam ? (row + 1) : (8 - row);
             int rowIndex = blackTeam ? (7 - row) : row;
             System.out.print(rowLabel +  " ");
+
             for (int col = 0; col < 8; col++) {
                 int colIndex = blackTeam ? (7 - col) : col;
-                String backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+
+                // 1. Calculate the exact ChessPosition for the square we are currently drawing
+                int posCol = blackTeam ? (8 - col) : (col + 1);
+                ChessPosition currentSquare = new ChessPosition(rowLabel, posCol);
+
+                // 2. Check if this square should be highlighted
+                boolean isHighlight = false;
+                if (validMoves != null) {
+                    for (ChessMove move : validMoves) {
+                        if (move.getEndPosition().equals(currentSquare)) {
+                            isHighlight = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 3. Set the background color!
+                String backGround;
+                if (startPosition != null && startPosition.equals(currentSquare)) {
+                    backGround = SET_BG_COLOR_YELLOW; // Highlight the piece you selected
+                } else if (isHighlight) {
+                    backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
+                } else {
+                    backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+                }
+
                 System.out.print(backGround + board[rowIndex][colIndex] + RESET_BG_COLOR + RESET_TEXT_COLOR);
             }
             System.out.println(" " + rowLabel);
         }
+//        for (int row = 0; row < 8; row++) {
+//            int rowLabel = blackTeam ? (row + 1) : (8 - row);
+//            int rowIndex = blackTeam ? (7 - row) : row;
+//            System.out.print(rowLabel +  " ");
+//            for (int col = 0; col < 8; col++) {
+//                int colIndex = blackTeam ? (7 - col) : col;
+//                String backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+//                System.out.print(backGround + board[rowIndex][colIndex] + RESET_BG_COLOR + RESET_TEXT_COLOR);
+//            }
+//            System.out.println(" " + rowLabel);
+//        }
+
+
         System.out.print("  ");
         for (int col = 0; col < 8; col++) {
             char colHeader = blackTeam ? (char) ('h' - col) : (char) ('a' + col);
             System.out.print(" " + colHeader + " ");
         }
         System.out.println();
+    }
+
+    private String highlight(String[] params) throws InvalidRequestException {
+        if (params.length != 1) {
+            throw new InvalidRequestException(400, "Error: Incorrect number of inputs for highlight command");
+        }
+        if (this.game == null) {
+            throw new InvalidRequestException(400, "Error: No active game state");
+        }
+        try {
+            int col = params[0].charAt(0) - 'a' + 1;
+            int row = params[0].charAt(1) - '0';
+            ChessPosition startPosition = new ChessPosition(row, col);
+
+            var validMoves = this.game.validMoves(startPosition);
+
+            printBoard(startPosition, validMoves);
+            return "";
+        } catch (Exception e) {
+            throw new InvalidRequestException(400, "Error: startPosition of piece is incorrect/invalid");
+        }
     }
 
     private void updateBoard(ChessBoard currentBoard) {

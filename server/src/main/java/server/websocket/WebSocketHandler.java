@@ -10,6 +10,7 @@ import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.server.Authentication;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
 
@@ -43,6 +44,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         } catch (IOException | ResponseException ex) {
             ex.printStackTrace();
+        } catch (InvalidMoveException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -127,8 +130,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             sendMessage(session, errorMessage);
             return;
         }
-        ChessMove chessMove = command.getChessMove();
-//        ChessMove chessMove = new ChessMove(); //TODO figure out how to create Chessmove (get start, end and promotion piece)
+        MakeMoveCommand moveCommand = (MakeMoveCommand) command;
+        ChessMove chessMove = moveCommand.getChessMove();
         try {
             gameData.game.makeMove(chessMove);
         } catch (InvalidMoveException e) {
