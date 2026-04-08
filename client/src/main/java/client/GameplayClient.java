@@ -58,7 +58,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
                 }
                 case "leave" -> {
                     ws.sendCommand(new UserGameCommand(CommandType.LEAVE, server.authToken, server.gameID));
-                    return "";
+                    return "EXIT_GAME";
                 }
                 case "move" -> {
                     ChessMove chessMove = makeChessMove(params);
