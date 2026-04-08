@@ -9,7 +9,6 @@ import dataaccess.MySqlGameDAO;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
-import org.eclipse.jetty.server.Authentication;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
@@ -193,7 +192,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException, ResponseException {
-        // No users leave the game... message broadcasted to everyone with player's name who resigned, no more moves can be made (i think that make moves on client side should check if true, and if so block moves being made
         MySqlAuthDAO authDAO = new MySqlAuthDAO();
         AuthData authData = authDAO.getAuth(command.getAuthToken());
         if (authData == null) {

@@ -1,10 +1,7 @@
 package client;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EmptyStackException;
-
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPosition;
@@ -14,9 +11,6 @@ import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import model.GameData;
-import request.ListRequest;
-import result.ListResult;
 import ui.EscapeSequences.*;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand.*;
@@ -38,11 +32,6 @@ public class GameplayClient implements ClientState, NotificationHandler{
         this.server = server;
         this.ws = new WebSocketFacade(server.serverUrl , this);
         ws.sendCommand(new UserGameCommand(CommandType.CONNECT, server.authToken, server.gameID));
-
-//        ChessBoard board = new ChessBoard();
-//        board.resetBoard();
-//        updateBoard(board);
-//        printBoard();
     }
 
     @Override
@@ -161,7 +150,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
     private void printBoard(ChessPosition startPosition, Collection<ChessMove> validMoves) {
         System.out.print(ERASE_SCREEN);
         boolean blackTeam = "BLACK".equals(server.playerColor);
-        System.out.print("  ");
+        System.out.print("\n  ");
         for (int col = 0; col < 8; col++) {
             char colHeader = blackTeam ? (char) ('h' - col) : (char) ('a' + col);
             System.out.print(" " + colHeader + " ");
@@ -172,15 +161,10 @@ public class GameplayClient implements ClientState, NotificationHandler{
             int rowLabel = blackTeam ? (row + 1) : (8 - row);
             int rowIndex = blackTeam ? (7 - row) : row;
             System.out.print(rowLabel +  " ");
-
             for (int col = 0; col < 8; col++) {
                 int colIndex = blackTeam ? (7 - col) : col;
-
-                // 1. Calculate the exact ChessPosition for the square we are currently drawing
                 int posCol = blackTeam ? (8 - col) : (col + 1);
                 ChessPosition currentSquare = new ChessPosition(rowLabel, posCol);
-
-                // 2. Check if this square should be highlighted
                 boolean isHighlight = false;
                 if (validMoves != null) {
                     for (ChessMove move : validMoves) {
@@ -190,8 +174,6 @@ public class GameplayClient implements ClientState, NotificationHandler{
                         }
                     }
                 }
-
-                // 3. Set the background color!
                 String backGround;
                 if (startPosition != null && startPosition.equals(currentSquare)) {
                     backGround = SET_BG_COLOR_MAGENTA; // Highlight the piece you selected
@@ -200,24 +182,10 @@ public class GameplayClient implements ClientState, NotificationHandler{
                 } else {
                     backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
                 }
-
                 System.out.print(backGround + board[rowIndex][colIndex] + RESET_BG_COLOR + RESET_TEXT_COLOR);
             }
             System.out.println(" " + rowLabel);
         }
-//        for (int row = 0; row < 8; row++) {
-//            int rowLabel = blackTeam ? (row + 1) : (8 - row);
-//            int rowIndex = blackTeam ? (7 - row) : row;
-//            System.out.print(rowLabel +  " ");
-//            for (int col = 0; col < 8; col++) {
-//                int colIndex = blackTeam ? (7 - col) : col;
-//                String backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
-//                System.out.print(backGround + board[rowIndex][colIndex] + RESET_BG_COLOR + RESET_TEXT_COLOR);
-//            }
-//            System.out.println(" " + rowLabel);
-//        }
-
-
         System.out.print("  ");
         for (int col = 0; col < 8; col++) {
             char colHeader = blackTeam ? (char) ('h' - col) : (char) ('a' + col);

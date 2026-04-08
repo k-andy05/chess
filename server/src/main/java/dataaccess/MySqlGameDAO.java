@@ -129,7 +129,6 @@ public class MySqlGameDAO implements GameDAO {
         }
     }
 
-//    @Override
     public void updateGame(GameData gameDataNew) throws DataAccessException {
         String statement = "UPDATE gamedata SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
         try (Connection conn = DatabaseManager.getConnection();
@@ -137,7 +136,6 @@ public class MySqlGameDAO implements GameDAO {
             ChessGame newGame = gameDataNew.game;
             Gson gson = new Gson();
             String newGameJson = gson.toJson(newGame);
-//            GameData gameDataOrig = this.getGameByID(gameDataNew.gameID);
             ps.setString(1, gameDataNew.whiteUsername);
             ps.setString(2, gameDataNew.blackUsername);
             ps.setString(3, gameDataNew.gameName);
