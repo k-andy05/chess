@@ -90,7 +90,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
     }
 
     private ChessMove makeChessMove(String ... params) throws InvalidRequestException {
-        if (params.length == 2 || params.length == 3) {
+        if (params.length == 2) {
             int startRow;
             int startCol;
             int endRow;
@@ -107,8 +107,10 @@ public class GameplayClient implements ClientState, NotificationHandler{
             ChessPosition startPosition = new ChessPosition(startRow, startCol);
             ChessPosition endPosition = new ChessPosition(endRow, endCol);
             PieceType promotionPiece = null;
-            if (params.length == 3) {
-                promotionPiece = switch (params[2].toLowerCase()) {
+            if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && endRow == 8) || game.getTeamTurn() == ChessGame.TeamColor.BLACK && endRow == 1) {
+                System.out.println("Options for promotion piece input are queen, rook, bishop, or knight");
+                String inputPromotionPiece = scanner.nextLine();
+                promotionPiece = switch (inputPromotionPiece.toLowerCase()) {
                     case "queen" -> PieceType.QUEEN;
                     case "rook" -> PieceType.ROOK;
                     case "bishop" -> PieceType.BISHOP;
@@ -117,10 +119,20 @@ public class GameplayClient implements ClientState, NotificationHandler{
                             "Error: options for promotion piece input are queen, rook, bishop, or knight");
                 };
             }
+//            if (params.length == 3) {
+//                promotionPiece = switch (params[2].toLowerCase()) {
+//                    case "queen" -> PieceType.QUEEN;
+//                    case "rook" -> PieceType.ROOK;
+//                    case "bishop" -> PieceType.BISHOP;
+//                    case "knight" -> PieceType.KNIGHT;
+//                    default -> throw new InvalidRequestException(400,
+//                            "Error: options for promotion piece input are queen, rook, bishop, or knight");
+//                };
+//            }
             return new ChessMove(startPosition, endPosition, promotionPiece);
         }
         throw new InvalidRequestException(401,
-                "Error: invalid number of inputs for move. Example format: 'move <start> <end> [promotion piece]'");
+                "Error: invalid number of inputs for move. Example format: 'move <start> <end>'");
     }
 
     @Override
@@ -129,7 +141,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
                 help - with possible commands
                 redraw - chess board with current game status
                 leave - current game interface and remove player from game
-                move <start position> <end position> [promotion piece] - a chess piece
+                move <start position> <end position> - a chess piece
                 resign - from the game (will not remove player from the game)
                 highlight <chesspiece position> - legal moves
                 """;
