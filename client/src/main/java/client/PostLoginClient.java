@@ -119,21 +119,17 @@ public class PostLoginClient implements ClientState {
             try {
                 int gameIndex = Integer.parseInt(params[0]) - 1;
                 String playerColor = params[1].toUpperCase();
-
                 if (gameIndex < 0 || gameIndex >= cachedGames.size()) {
                     throw new InvalidRequestException(400, "Join failed: Invalid game number. Type 'list' to see possible games");
                 }
                 if (!playerColor.equals("WHITE") && !playerColor.equals("BLACK")) {
                     throw new InvalidRequestException(400, "Join failed: Team color must be WHITE or BLACK");
                 }
-
                 int actualGameID = cachedGames.get(gameIndex).gameID;
-
                 String body = String.format(
                         "{\"playerColor\":\"%s\",\"gameID\":%d}",
                         playerColor, actualGameID
                 );
-
                 server.join(new JoinRequest(server.authToken, body));
                 return "JOIN_SUCCESS";
             } catch (NumberFormatException e) {
@@ -158,7 +154,6 @@ public class PostLoginClient implements ClientState {
         if (params.length == 1) {
             try {
                 int gameIndex = Integer.parseInt(params[0]) -1;
-
                 if (gameIndex < 0 || gameIndex >= cachedGames.size()) {
                     throw new InvalidRequestException(400, "Observe failed: Invalid game number. Type 'list' to see possible games");
                 }

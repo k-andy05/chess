@@ -172,7 +172,6 @@ private void printBoard(ChessPosition startPosition, Collection<ChessMove> valid
         System.out.print(" " + colHeader + " ");
     }
     System.out.println();
-
     for (int row = 0; row < 8; row++) {
         int rowLabel = blackTeam ? (row + 1) : (8 - row);
         int rowIndex = blackTeam ? (7 - row) : row;
@@ -213,9 +212,7 @@ private void printBoard(ChessPosition startPosition, Collection<ChessMove> valid
             int col = params[0].charAt(0) - 'a' + 1;
             int row = params[0].charAt(1) - '0';
             ChessPosition startPosition = new ChessPosition(row, col);
-
             var validMoves = this.game.validMoves(startPosition);
-
             printBoard(startPosition, validMoves);
             return "";
         } catch (Exception e) {

@@ -1,20 +1,12 @@
 package client.websocket;
 
-import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import jakarta.websocket.*;
-//import org.glassfish.grizzly.http.server.Session;
-//import org.glassfish.tyrus.core.wsadl.model.Endpoint;
-
-//import javax.management.Notification;
-//import java.io.IO;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
 
 public class WebSocketFacade extends Endpoint {
 

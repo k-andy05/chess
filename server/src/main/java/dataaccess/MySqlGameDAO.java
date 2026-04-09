@@ -155,7 +155,6 @@ public class MySqlGameDAO implements GameDAO {
                 rs.getString("whiteUsername"),
                 rs.getString("blackUsername"),
                 rs.getString("gameName"),
-//                chessGame.getBoard()
                 chessGame
         );
     }
