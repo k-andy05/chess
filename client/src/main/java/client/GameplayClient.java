@@ -64,17 +64,8 @@ public class GameplayClient implements ClientState, NotificationHandler{
                 }
                 case "resign" -> {
                     if (params.length == 0) {
-                        System.out.print("Are you sure you want to resign? (yes/no) ");
-                        String confirmation = scanner.nextLine();
-                        if (confirmation.equals("yes")) {
-                            ws.sendCommand(new UserGameCommand(CommandType.RESIGN, server.authToken, server.gameID));
-                            return "";
-                        } else if (confirmation.equals("no")) {
-                            return "";
-                        } else {
-                            System.out.print("Command unclear... try the resign command again");
-                            return "";
-                        }
+                        resign();
+                        return "";
                     } throw new InvalidRequestException(400, "Error: Incorrect number of inputs for resign");
                 }
                 case "highlight" -> {
@@ -86,6 +77,16 @@ public class GameplayClient implements ClientState, NotificationHandler{
             }
         } catch (Exception e) {
             throw new InvalidRequestException(401, e.getMessage());
+        }
+    }
+
+    private void resign() throws ResponseException {
+        System.out.print("Are you sure you want to resign? (yes/no) ");
+        String confirmation = scanner.nextLine();
+        if (confirmation.equals("yes")) {
+            ws.sendCommand(new UserGameCommand(CommandType.RESIGN, server.authToken, server.gameID));
+        } else if (!confirmation.equals("no")) {
+            System.out.print("Command unclear... try the resign command again");
         }
     }
 
