@@ -107,7 +107,8 @@ public class GameplayClient implements ClientState, NotificationHandler{
             ChessPosition startPosition = new ChessPosition(startRow, startCol);
             ChessPosition endPosition = new ChessPosition(endRow, endCol);
             PieceType promotionPiece = null;
-            if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && endRow == 8) || game.getTeamTurn() == ChessGame.TeamColor.BLACK && endRow == 1) {
+            if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && endRow == 8) ||
+                    game.getTeamTurn() == ChessGame.TeamColor.BLACK && endRow == 1) {
                 System.out.println("Options for promotion piece input are queen, rook, bishop, or knight");
                 String inputPromotionPiece = scanner.nextLine();
                 promotionPiece = switch (inputPromotionPiece.toLowerCase()) {
@@ -119,16 +120,6 @@ public class GameplayClient implements ClientState, NotificationHandler{
                             "Error: options for promotion piece input are queen, rook, bishop, or knight");
                 };
             }
-//            if (params.length == 3) {
-//                promotionPiece = switch (params[2].toLowerCase()) {
-//                    case "queen" -> PieceType.QUEEN;
-//                    case "rook" -> PieceType.ROOK;
-//                    case "bishop" -> PieceType.BISHOP;
-//                    case "knight" -> PieceType.KNIGHT;
-//                    default -> throw new InvalidRequestException(400,
-//                            "Error: options for promotion piece input are queen, rook, bishop, or knight");
-//                };
-//            }
             return new ChessMove(startPosition, endPosition, promotionPiece);
         }
         throw new InvalidRequestException(401,
@@ -148,7 +139,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
     }
 
     @Override
-    public void notify(String message) { // TODO implement switch cases
+    public void notify(String message) {
         ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
         ServerMessage.ServerMessageType msgType = serverMessage.getServerMessageType();
         switch (msgType) {

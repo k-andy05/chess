@@ -100,7 +100,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void makeMove(UserGameCommand command, Session session) throws IOException, InvalidMoveException, ResponseException { // TODO figure out later after message from client is built and handled...
+    private void makeMove(UserGameCommand command, Session session) throws IOException, InvalidMoveException, ResponseException {
         MySqlAuthDAO authDAO = new MySqlAuthDAO();
         AuthData authData = authDAO.getAuth(command.getAuthToken());
         if (authData == null) {
