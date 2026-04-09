@@ -59,22 +59,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void connect(UserGameCommand command, Session session) throws IOException, ResponseException {
-        MySqlAuthDAO authDAO = new MySqlAuthDAO();
-        AuthData authData = authDAO.getAuth(command.getAuthToken());
-        if (authData == null) {
-            String messageStr = "Error: auth token not valid";
-            ErrorMessage errorMessage = new ErrorMessage(messageStr);
-            sendMessage(session, errorMessage);
-            return;
-        }
+        AuthData authData = getAuthAndVerify(command.getAuthToken(), "Error: auth token not valid", session);
+        if (authData == null) { return; }
         MySqlGameDAO gameDAO = new MySqlGameDAO();
-        GameData gameData = gameDAO.getGameByID(command.getGameID());
-        if (gameData == null) {
-            String messageStr = "Error: game does not exist";
-            ErrorMessage errorMessage = new ErrorMessage(messageStr);
-            sendMessage(session, errorMessage);
-            return;
-        }
+        GameData gameData = getGameAndVerify(command.getGameID(), "Error: game does not exist", session);
+        if (gameData == null) { return; }
         String teamColor;
         String messageStr;
         if (authData.username.equals(gameData.whiteUsername)) {
@@ -101,22 +90,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void makeMove(UserGameCommand command, Session session) throws IOException, InvalidMoveException, ResponseException {
-        MySqlAuthDAO authDAO = new MySqlAuthDAO();
-        AuthData authData = authDAO.getAuth(command.getAuthToken());
-        if (authData == null) {
-            String messageStr = "Error: auth token not valid";
-            ErrorMessage errorMessage = new ErrorMessage(messageStr);
-            sendMessage(session, errorMessage);
-            return;
-        }
+        AuthData authData = getAuthAndVerify(command.getAuthToken(), "Error: auth token not valid", session);
+        if (authData == null) { return; }
         MySqlGameDAO gameDAO = new MySqlGameDAO();
-        GameData gameData = gameDAO.getGameByID(command.getGameID());
-        if (gameData == null) {
-            String messageStr = "Error: game does not exist";
-            ErrorMessage errorMessage = new ErrorMessage(messageStr);
-            sendMessage(session, errorMessage);
-            return;
-        }
+        GameData gameData = getGameAndVerify(command.getGameID(), "Error: game does not exist", session);
+        if (gameData == null) { return; }
         if (gameData.game.isGameOver()) {
             String messageStr = "Error: Game has already ended. No more moves are allowed";
             ErrorMessage errorMessage = new ErrorMessage(messageStr);
@@ -187,22 +165,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void leave(UserGameCommand command, Session session) throws IOException, ResponseException {
-        MySqlAuthDAO authDAO = new MySqlAuthDAO();
-        AuthData authData = authDAO.getAuth(command.getAuthToken());
-        if (authData == null) {
-            String messageStr = "Error: auth token not valid";
-            ErrorMessage errorMessage = new ErrorMessage(messageStr);
-            sendMessage(session, errorMessage);
-            return;
-        }
+        AuthData authData = getAuthAndVerify(command.getAuthToken(), "Error: auth token not valid", session);
+        if (authData == null) { return; }
         MySqlGameDAO gameDAO = new MySqlGameDAO();
-        GameData gameData = gameDAO.getGameByID(command.getGameID());
-        if (gameData == null) {
-            String messageStr = "Error: game does not exist";
-            ErrorMessage errorMessage = new ErrorMessage(messageStr);
-            sendMessage(session, errorMessage);
-            return;
-        }
+        GameData gameData = getGameAndVerify(command.getGameID(), "Error: game does not exist", session);
+        if (gameData == null) { return; }
         if (authData.username.equals(gameData.whiteUsername)) {
             GameData gameDataNew = new GameData(gameData.gameID, null, gameData.blackUsername, gameData.gameName, gameData.game);
             gameDAO.updateGame(gameDataNew);
@@ -223,22 +190,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException, ResponseException {
-        MySqlAuthDAO authDAO = new MySqlAuthDAO();
-        AuthData authData = authDAO.getAuth(command.getAuthToken());
-        if (authData == null) {
-            String messageStr = "Error: auth token not valid";
-            ErrorMessage errorMessage = new ErrorMessage(messageStr);
-            sendMessage(session, errorMessage);
-            return;
-        }
-        MySqlGameDAO gameDAO = new MySqlGameDAO();
-        GameData gameData = gameDAO.getGameByID(command.getGameID());
-        if (gameData == null) {
-            String messageStr = "Error: game does not exist";
-            ErrorMessage errorMessage = new ErrorMessage(messageStr);
-            sendMessage(session, errorMessage);
-            return;
-        }
+        AuthData authData = getAuthAndVerify(command.getAuthToken(), "Error: auth token not valid", session);
+        if (authData == null) { return; }
+        GameData gameData = getGameAndVerify(command.getGameID(), "Error: game does not exist", session);
+        if (gameData == null) { return; }
         if (gameData.game.isGameOver()) {
             String messageStr = "Error: Game has already ended";
             ErrorMessage errorMessage = new ErrorMessage(messageStr);
@@ -247,6 +202,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
         if (authData.username.equals(gameData.whiteUsername) || authData.username.equals(gameData.blackUsername)) {
             gameData.game.setGameOver(true);
+            MySqlGameDAO gameDAO = new MySqlGameDAO();
             gameDAO.updateGame(gameData);
             String messageStr = String.format("%s has resigned", authData.username);
             NotificationMessage notificationMessage = new NotificationMessage(messageStr);
@@ -262,5 +218,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void sendMessage(Session session, ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
+    }
+
+    private AuthData getAuthAndVerify(String authToken, String message, Session session) throws IOException {
+        MySqlAuthDAO authDAO = new MySqlAuthDAO();
+        AuthData authData = authDAO.getAuth(authToken);
+        if (authData == null) {
+            ErrorMessage errorMessage = new ErrorMessage(message);
+            sendMessage(session, errorMessage);
+            return null;
+        }
+        return authData;
+    }
+
+    private GameData getGameAndVerify(Integer gameID, String message, Session session) throws IOException {
+        MySqlGameDAO gameDAO = new MySqlGameDAO();
+        GameData gameData = gameDAO.getGameByID(gameID);
+        if (gameData == null) {
+            ErrorMessage errorMessage = new ErrorMessage(message);
+            sendMessage(session, errorMessage);
+            return null;
+        }
+        return gameData;
     }
 }
