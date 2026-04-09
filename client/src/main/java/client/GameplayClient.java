@@ -2,6 +2,8 @@ package client;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Scanner;
+
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPosition;
@@ -11,7 +13,6 @@ import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import ui.EscapeSequences.*;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand.*;
 import websocket.commands.UserGameCommand;
@@ -27,10 +28,12 @@ public class GameplayClient implements ClientState, NotificationHandler{
     private final WebSocketFacade ws;
     private String[][] board = new String[8][8];
     private ChessGame game;
+    private final Scanner scanner;
 
-    public GameplayClient(ServerFacade server) throws ResponseException {
+    public GameplayClient(ServerFacade server, Scanner scanner) throws ResponseException {
         this.server = server;
         this.ws = new WebSocketFacade(server.serverUrl , this);
+        this.scanner = scanner;
         ws.sendCommand(new UserGameCommand(CommandType.CONNECT, server.authToken, server.gameID));
     }
 
@@ -42,13 +45,13 @@ public class GameplayClient implements ClientState, NotificationHandler{
         try {
             switch (cmd) {
                 case "redraw" -> {
-                    if (params.length == 1) {
+                    if (params.length == 0) {
                         printBoard(null, null);
                         return "";
                     } throw new InvalidRequestException(400, "Error: Incorrect number of inputs for redraw");
                 }
                 case "leave" -> {
-                    if (params.length == 1) {
+                    if (params.length == 0) {
                         ws.sendCommand(new UserGameCommand(CommandType.LEAVE, server.authToken, server.gameID));
                         return "EXIT_GAME";
                     } throw new InvalidRequestException(400, "Error: Incorrect number of inputs for leave");
@@ -60,9 +63,18 @@ public class GameplayClient implements ClientState, NotificationHandler{
                     return "";
                 }
                 case "resign" -> {
-                    if (params.length == 1) {
-                        ws.sendCommand(new UserGameCommand(CommandType.RESIGN, server.authToken, server.gameID));
-                        return "";
+                    if (params.length == 0) {
+                        System.out.print("Are you sure you want to resign? (yes/no) ");
+                        String confirmation = scanner.nextLine();
+                        if (confirmation.equals("yes")) {
+                            ws.sendCommand(new UserGameCommand(CommandType.RESIGN, server.authToken, server.gameID));
+                            return "";
+                        } else if (confirmation.equals("no")) {
+                            return "";
+                        } else {
+                            System.out.print("Command unclear... try the resign command again");
+                            return "";
+                        }
                     } throw new InvalidRequestException(400, "Error: Incorrect number of inputs for resign");
                 }
                 case "highlight" -> {
@@ -175,7 +187,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
                     }
                 }
                 String backGround;
-                if (startPosition != null && startPosition.equals(currentSquare)) {
+                if (startPosition != null && startPosition.equals(currentSquare) && this.game.getBoard().getPiece(currentSquare) != null) {
                     backGround = SET_BG_COLOR_MAGENTA; // Highlight the piece you selected
                 } else if (isHighlight) {
                     backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;

@@ -31,7 +31,7 @@ public class Repl {
                     }
                     case "JOIN_SUCCESS" -> {
                         currentStatus = "IN_GAME";
-                        state = new GameplayClient(server);
+                        state = new GameplayClient(server, scanner);
                     }
                     case "LOGOUT_SUCCESS" -> {
                         currentStatus = "LOGGED_OUT";

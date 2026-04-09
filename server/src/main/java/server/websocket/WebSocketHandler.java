@@ -165,7 +165,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String endPositionStr = String.format("%s%s", endCol, chessMove.getEndPosition().getRow());
         String messageStr = String.format("%s: %s to %s", authData.username, startPositionStr, endPositionStr);
         NotificationMessage notificationMessage = new NotificationMessage(messageStr);
-//        sendMessage(session, notificationMessage);
         connections.broadcast(session, notificationMessage, command.getGameID());
 
         String opponentName = opponentTeamColor.name();
