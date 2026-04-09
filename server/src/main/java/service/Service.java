@@ -97,112 +97,39 @@ public class Service {
         if (request.gameID == null) {
             throw new InvalidRequestException(400, "Error: GameID cannot be empty");
         }
-
+        if (request.playerColor == null || request.playerColor.isEmpty()) {
+            throw new InvalidRequestException(400, "Error: playerColor cannot be empty");
+        }
+        if (!request.playerColor.equals("WHITE") && !request.playerColor.equals("BLACK")) {
+            throw new InvalidRequestException(400, "Error: playerColor must be WHITE/BLACK");
+        }
         AuthData authData = authDAO.getAuth(request.authToken);
         if (authData == null) {
             throw new InvalidRequestException(401, "Error: Session not found");
         }
-
         GameData gameData = gameDAO.getGameByID(request.gameID);
         if (gameData == null) {
             throw new InvalidRequestException(400, "Error: Game not found");
         }
-
-        // Only run team checks and database updates if they requested a color (i.e., not an observer)
-        if (request.playerColor != null && !request.playerColor.isEmpty()) {
-            if (!request.playerColor.equals("WHITE") && !request.playerColor.equals("BLACK")) {
-                throw new InvalidRequestException(400, "Error: playerColor must be WHITE/BLACK");
-            }
-
-            if (request.playerColor.equals("WHITE")) {
-                if (gameData.whiteUsername != null && !gameData.whiteUsername.equals(authData.username)) {
-                    if (authData.username.equals(gameData.blackUsername)) {
-                        throw new InvalidRequestException(403, "Error: User is already in this game as the black team");
-                    }
-                    throw new InvalidRequestException(403, "Error: White team color already taken");
+        if (request.playerColor.equals("WHITE")) {
+            if (gameData.whiteUsername != null && !gameData.whiteUsername.equals(authData.username)) {
+                if (authData.username.equals(gameData.blackUsername)) {
+                    throw new InvalidRequestException(403, "Error: User is already in this game as the black team");
                 }
+                throw new InvalidRequestException(403, "Error: White team color already taken");
             }
-
-            if (request.playerColor.equals("BLACK")) {
-                if (gameData.blackUsername != null && !gameData.blackUsername.equals(authData.username)) {
-                    if (authData.username.equals(gameData.whiteUsername)) {
-                        throw new InvalidRequestException(403, "Error: User is already in this game as the white team");
-                    }
-                    throw new InvalidRequestException(403, "Error: Black team color already taken");
-                }
-            }
-
-            // Finally, update the database for the player
-            gameDAO.userJoin(request.playerColor, request.gameID, authData.username);
         }
-
+        if (request.playerColor.equals("BLACK")) {
+            if (gameData.blackUsername != null && !gameData.blackUsername.equals(authData.username)) {
+                if (authData.username.equals(gameData.whiteUsername)) {
+                    throw new InvalidRequestException(403, "Error: User is already in this game as the white team");
+                }
+                throw new InvalidRequestException(403, "Error: Black team color already taken");
+            }
+        }
+        gameDAO.userJoin(request.playerColor, request.gameID, authData.username);
         return new JoinResult();
     }
-
-//    public JoinResult join(JoinRequest request) throws InvalidRequestException {
-//        if (request.gameID == null) {
-//            throw new InvalidRequestException(400, "Error: GameID cannot be empty");
-//        }
-////        if (request.playerColor == null) {
-////            throw new InvalidRequestException(400, "Error: playerColor cannot be empty");
-////        }
-////        if (!request.playerColor.equals("WHITE")) {
-////            if (!request.playerColor.equals("BLACK")) {
-////                throw new InvalidRequestException(400, "Error: playerColor must be WHITE/BLACK");
-////            }
-////        }
-//        AuthData authData = authDAO.getAuth(request.authToken);
-//        if (authData == null) {
-//            throw new InvalidRequestException(401, "Error: Session not found");
-//        }
-//        GameData gameData = gameDAO.getGameByID(request.gameID);
-//        if (gameData == null) {
-//            throw new InvalidRequestException(400, "Error: Game not found");
-//        }
-//        if (request.playerColor.equals("WHITE")) {
-//            if (gameData.whiteUsername != null && !gameData.whiteUsername.equals(authData.username)) {
-//                if (authData.username.equals(gameData.blackUsername)) {
-//                    throw new InvalidRequestException(403, "Error: User is already in this game as the black team");
-//                }
-//                throw new InvalidRequestException(403, "Error: White team color already taken");
-//            }
-//        }
-//        //
-//        if (request.playerColor != null && !request.playerColor.isEmpty()) {
-//            if (!request.playerColor.equals("WHITE") && !request.playerColor.equals("BLACK")) {
-//                throw new InvalidRequestException(400, "Error: playerColor must be WHITE/BLACK");
-//            }
-//            if (request.playerColor.equals("WHITE")) {
-//                if (gameData.whiteUsername != null && !gameData.whiteUsername.equals(authData.username)) {
-//                    if (authData.username.equals(gameData.blackUsername)) {
-//                        throw new InvalidRequestException(403, "Error: User is already in this game as black team");
-//                    }
-//                    throw new InvalidRequestException(403, "Error: White team color already taken");
-//                }
-//            }
-//            if (request.playerColor.equals("BLACK")) {
-//                if (gameData.blackUsername != null && !gameData.blackUsername.equals(authData.username)) {
-//                    if (authData.username.equals(gameData.whiteUsername)) {
-//                        throw new InvalidRequestException(403, "Error: User is already in this game as white team");
-//                    }
-//                    throw new InvalidRequestException(403, "Error: Black team color already taken");
-//                }
-//            }
-//            gameDAO.userJoin(request.playerColor, request.gameID, authData.username);
-//            return new JoinResult();
-//        }
-//        //
-////        if (request.playerColor.equals("BLACK")) {
-////            if (gameData.blackUsername != null && !gameData.blackUsername.equals(authData.username)) {
-////                if (authData.username.equals(gameData.whiteUsername)) {
-////                    throw new InvalidRequestException(403, "Error: User is already in this game as the white team");
-////                }
-////                throw new InvalidRequestException(403, "Error: Black team color already taken");
-////            }
-////        }
-////        gameDAO.userJoin(request.playerColor, request.gameID, authData.username);
-////        return new JoinResult();
-//    }
 
     private String generateToken() {
         return UUID.randomUUID().toString();

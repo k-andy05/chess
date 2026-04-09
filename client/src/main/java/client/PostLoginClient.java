@@ -165,10 +165,6 @@ public class PostLoginClient implements ClientState {
                 int gameID = cachedGames.get(gameIndex).gameID;
                 server.gameID = gameID;
                 server.playerColor = null;
-                String body = String.format("{\"gameID\":%d}", gameID);
-                server.join(new JoinRequest(server.authToken, body));
-
-//                server.playerColor = null;
                 return "JOIN_SUCCESS";
             } catch (NumberFormatException e) {
                 throw new InvalidRequestException(400, "Observe failed: Game number must be an integer");
