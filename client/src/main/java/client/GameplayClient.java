@@ -2,6 +2,7 @@ package client;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 
 import chess.ChessBoard;
@@ -96,6 +97,12 @@ public class GameplayClient implements ClientState, NotificationHandler{
             int startCol;
             int endRow;
             int endCol;
+            List<Character> colRanges = List.of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h');
+            List<Character> rowRanges = List.of('1', '2', '3', '4', '5', '6', '7', '8');
+            if (!colRanges.contains(params[0].charAt(0)) || !colRanges.contains(params[1].charAt(0)) ||
+                    !rowRanges.contains(params[0].charAt(1)) || !rowRanges.contains(params[1].charAt(1))) {
+                throw new InvalidRequestException(400, "Error: input type must be <Letter><Number> for start and end positions");
+            }
             try {
                 startCol = params[0].charAt(0) - 'a' + 1;
                 startRow = params[0].charAt(1) - '0';
@@ -103,7 +110,7 @@ public class GameplayClient implements ClientState, NotificationHandler{
                 endRow = params[1].charAt(1) - '0';
             } catch (NumberFormatException e) {
                 throw new InvalidRequestException(
-                        400, "Error: input type must be <Letter><Number> for start and end positions.");
+                        400, "Error: input type must be <Letter><Number> for start and end positions");
             }
             ChessPosition startPosition = new ChessPosition(startRow, startCol);
             ChessPosition endPosition = new ChessPosition(endRow, endCol);

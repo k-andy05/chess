@@ -145,7 +145,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         NotificationMessage notificationMessage = new NotificationMessage(messageStr);
         connections.broadcast(session, notificationMessage, command.getGameID());
 
-        String opponentName = opponentTeamColor.name();
+        String opponentName = "Opponent";
+        if (authData.username.equals(gameData.whiteUsername)) {
+            opponentName = gameData.blackUsername;
+        } else if (authData.username.equals(gameData.blackUsername)) {
+            opponentName = gameData.whiteUsername;
+        }
         if (isInCheckmate) {
             String checkmateMsg = String.format("%s is in checkmate, %s wins!", opponentName, authData.username);
             NotificationMessage checkmateNotification = new NotificationMessage(checkmateMsg);
