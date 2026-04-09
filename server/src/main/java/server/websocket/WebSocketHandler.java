@@ -34,6 +34,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(WsMessageContext ctx) {
         try {
+            System.out.println("Incoming JSON: " + ctx.message());
             String rawJson = ctx.message();
             UserGameCommand command = new Gson().fromJson(rawJson, UserGameCommand.class);
             switch (command.getCommandType()) {
@@ -151,7 +152,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(session, loadGameMessage, command.getGameID());
         String messageStr = String.format("%s: a6 to b4", authData.username);
         NotificationMessage notificationMessage = new NotificationMessage(messageStr);
-        sendMessage(session, notificationMessage);
+//        sendMessage(session, notificationMessage);
         connections.broadcast(session, notificationMessage, command.getGameID());
     }
 
