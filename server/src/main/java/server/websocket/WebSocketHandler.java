@@ -139,21 +139,52 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         MakeMoveCommand moveCommand = (MakeMoveCommand) command;
         ChessMove chessMove = moveCommand.getChessMove();
         try {
-            gameData.game.makeMove(chessMove);
+            gameData.game.makeMove(chessMove); // Do move in local instance
         } catch (InvalidMoveException e) {
             String messageStr = "Error: Move not permitted";
             ErrorMessage errorMessage = new ErrorMessage(messageStr);
             sendMessage(session, errorMessage);
             return;
         }
-        gameDAO.updateGame(gameData);
+        ChessGame.TeamColor opponentTeamColor = gameData.game.getTeamTurn();
+        boolean isInCheckmate = gameData.game.isInCheckmate(opponentTeamColor);
+        boolean isInCheck = gameData.game.isInCheck(opponentTeamColor);
+        boolean isInStalemate = gameData.game.isInStalemate(opponentTeamColor);
+
+        if (isInCheckmate || isInStalemate) {
+            gameData.game.setGameOver(true);
+        }
+
+        gameDAO.updateGame(gameData); // Do move in database instance
         LoadGameMessage loadGameMessage = new LoadGameMessage(gameData.game);
-        sendMessage(session, loadGameMessage);
-        connections.broadcast(session, loadGameMessage, command.getGameID());
-        String messageStr = String.format("%s: a6 to b4", authData.username);
+        sendMessage(session, loadGameMessage); // Send updated game to user who did the move
+        connections.broadcast(session, loadGameMessage, command.getGameID()); // broadcast the updated game to all other players/observers
+        char startCol = (char) ('a' + chessMove.getStartPosition().getColumn() - 1);
+        char endCol = (char) ('a' + chessMove.getEndPosition().getColumn() - 1);
+        String startPositionStr = String.format("%s%s", startCol, chessMove.getStartPosition().getRow());
+        String endPositionStr = String.format("%s%s", endCol, chessMove.getEndPosition().getRow());
+        String messageStr = String.format("%s: %s to %s", authData.username, startPositionStr, endPositionStr);
         NotificationMessage notificationMessage = new NotificationMessage(messageStr);
 //        sendMessage(session, notificationMessage);
         connections.broadcast(session, notificationMessage, command.getGameID());
+
+        String opponentName = opponentTeamColor.name();
+        if (isInCheckmate) {
+            String checkmateMsg = String.format("%s is in checkmate, %s wins!", opponentName, authData.username);
+            NotificationMessage checkmateNotification = new NotificationMessage(checkmateMsg);
+            sendMessage(session, checkmateNotification);
+            connections.broadcast(session, checkmateNotification, gameData.gameID);
+        } else if (isInStalemate) {
+            String stalemateMsg = String.format("%s is in a stalemate, the game ends in a tie!", opponentName);
+            NotificationMessage stalemateNotification = new NotificationMessage(stalemateMsg);
+            sendMessage(session, stalemateNotification);
+            connections.broadcast(session, stalemateNotification, gameData.gameID);
+        } else if (isInCheck) {
+            String checkMsg = String.format("%s is in check", opponentName);
+            NotificationMessage checkNotification = new NotificationMessage(checkMsg);
+            sendMessage(session, checkNotification);
+            connections.broadcast(session, checkNotification, gameData.gameID);
+        }
     }
 
     private void leave(UserGameCommand command, Session session) throws IOException, ResponseException {
