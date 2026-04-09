@@ -220,6 +220,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String messageStr = String.format("%s has resigned", authData.username);
             NotificationMessage notificationMessage = new NotificationMessage(messageStr);
             connections.broadcast(session, notificationMessage, command.getGameID());
+            sendMessage(session, notificationMessage);
         } else {
             String messageStr = "Error: observer not permitted to resign a game";
             ErrorMessage errorMessage = new ErrorMessage(messageStr);
