@@ -107,8 +107,10 @@ public class GameplayClient implements ClientState, NotificationHandler{
             ChessPosition startPosition = new ChessPosition(startRow, startCol);
             ChessPosition endPosition = new ChessPosition(endRow, endCol);
             PieceType promotionPiece = null;
-            if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && endRow == 8) ||
-                    game.getTeamTurn() == ChessGame.TeamColor.BLACK && endRow == 1) {
+            chess.ChessPiece movingPiece = game.getBoard().getPiece(startPosition);
+            if (movingPiece != null && movingPiece.getPieceType() == PieceType.PAWN &&
+                    ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && endRow == 8) ||
+                            (game.getTeamTurn() == ChessGame.TeamColor.BLACK && endRow == 1))) {
                 System.out.println("Options for promotion piece input are queen, rook, bishop, or knight");
                 String inputPromotionPiece = scanner.nextLine();
                 promotionPiece = switch (inputPromotionPiece.toLowerCase()) {
@@ -152,62 +154,52 @@ public class GameplayClient implements ClientState, NotificationHandler{
             case ERROR -> {
                 ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
                 System.out.println(SET_TEXT_COLOR_RED + errorMessage.getErrorMsg() + RESET_TEXT_COLOR);
-
             }
             case NOTIFICATION -> {
                 NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
                 System.out.println(SET_TEXT_COLOR_GREEN + notificationMessage.getMessage() + RESET_TEXT_COLOR);
-
             }
         }
     }
 
-    private void printBoard(ChessPosition startPosition, Collection<ChessMove> validMoves) {
-        System.out.print(ERASE_SCREEN);
-        boolean blackTeam = "BLACK".equals(server.playerColor);
-        System.out.print("\n  ");
-        for (int col = 0; col < 8; col++) {
-            char colHeader = blackTeam ? (char) ('h' - col) : (char) ('a' + col);
-            System.out.print(" " + colHeader + " ");
-        }
-        System.out.println();
-
-        for (int row = 0; row < 8; row++) {
-            int rowLabel = blackTeam ? (row + 1) : (8 - row);
-            int rowIndex = blackTeam ? (7 - row) : row;
-            System.out.print(rowLabel +  " ");
-            for (int col = 0; col < 8; col++) {
-                int colIndex = blackTeam ? (7 - col) : col;
-                int posCol = blackTeam ? (8 - col) : (col + 1);
-                ChessPosition currentSquare = new ChessPosition(rowLabel, posCol);
-                boolean isHighlight = false;
-                if (validMoves != null) {
-                    for (ChessMove move : validMoves) {
-                        if (move.getEndPosition().equals(currentSquare)) {
-                            isHighlight = true;
-                            break;
-                        }
-                    }
-                }
-                String backGround;
-                if (startPosition != null && startPosition.equals(currentSquare) && this.game.getBoard().getPiece(currentSquare) != null) {
-                    backGround = SET_BG_COLOR_MAGENTA; // Highlight the piece you selected
-                } else if (isHighlight) {
-                    backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
-                } else {
-                    backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
-                }
-                System.out.print(backGround + board[rowIndex][colIndex] + RESET_BG_COLOR + RESET_TEXT_COLOR);
-            }
-            System.out.println(" " + rowLabel);
-        }
-        System.out.print("  ");
-        for (int col = 0; col < 8; col++) {
-            char colHeader = blackTeam ? (char) ('h' - col) : (char) ('a' + col);
-            System.out.print(" " + colHeader + " ");
-        }
-        System.out.println();
+private void printBoard(ChessPosition startPosition, Collection<ChessMove> validMoves) {
+    System.out.print(ERASE_SCREEN);
+    boolean blackTeam = "BLACK".equals(server.playerColor);
+    System.out.print("\n  ");
+    for (int col = 0; col < 8; col++) {
+        char colHeader = blackTeam ? (char) ('h' - col) : (char) ('a' + col);
+        System.out.print(" " + colHeader + " ");
     }
+    System.out.println();
+
+    for (int row = 0; row < 8; row++) {
+        int rowLabel = blackTeam ? (row + 1) : (8 - row);
+        int rowIndex = blackTeam ? (7 - row) : row;
+        System.out.print(rowLabel +  " ");
+        for (int col = 0; col < 8; col++) {
+            int colIndex = blackTeam ? (7 - col) : col;
+            int posCol = blackTeam ? (8 - col) : (col + 1);
+            ChessPosition currentSquare = new ChessPosition(rowLabel, posCol);
+            boolean isHighlight = isSquareHighlighted(validMoves, currentSquare);
+            String backGround;
+            if (startPosition != null && startPosition.equals(currentSquare) && this.game.getBoard().getPiece(currentSquare) != null) {
+                backGround = SET_BG_COLOR_MAGENTA;
+            } else if (isHighlight) {
+                backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
+            } else {
+                backGround = ((rowIndex + colIndex) % 2 == 0) ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+            }
+            System.out.print(backGround + board[rowIndex][colIndex] + RESET_BG_COLOR + RESET_TEXT_COLOR);
+        }
+        System.out.println(" " + rowLabel);
+    }
+    System.out.print("  ");
+    for (int col = 0; col < 8; col++) {
+        char colHeader = blackTeam ? (char) ('h' - col) : (char) ('a' + col);
+        System.out.print(" " + colHeader + " ");
+    }
+    System.out.println();
+}
 
     private String highlight(String[] params) throws InvalidRequestException {
         if (params.length != 1) {
@@ -255,5 +247,16 @@ public class GameplayClient implements ClientState, NotificationHandler{
             case PAWN -> piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_PAWN : BLACK_PAWN;
         };
         return textColor + pieceSymbol;
+    }
+
+    private boolean isSquareHighlighted(Collection<ChessMove> validMoves, ChessPosition currentSquare) {
+        if (validMoves != null) {
+            for (ChessMove move : validMoves) {
+                if (move.getEndPosition().equals(currentSquare)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
